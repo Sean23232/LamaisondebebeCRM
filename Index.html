@@ -1,0 +1,2244 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex,nofollow"/>
+<title>La Maison de BéBé — Private Concierge CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        serif: ['"Cormorant Garamond"','Georgia','serif'],
+        sans: ['"Inter"','system-ui','sans-serif'],
+      },
+      colors: {
+        champagne: '#C9A96E',
+        parchment: '#F8F5EF',
+        charcoal: '#1A1815',
+        obsidian: {
+          50:'#f5f5f4',100:'#e7e5e0',200:'#d2cfc8',300:'#b5b0a5',
+          400:'#928d82',500:'#787166',600:'#625c52',700:'#514b43',
+          800:'#45403a',900:'#3d3833',950:'#141210',
+        },
+        ivory: {
+          50:'#fafaf7',100:'#f5f4ef',200:'#eeece4',300:'#e2dfd4',
+          400:'#d1ccbe',500:'#b8b2a0',600:'#9e9786',700:'#837c6d',
+          800:'#6c6659',900:'#59544a',950:'#2e2c26',
+        },
+        gold: {
+          50:'#fdf8ee',100:'#f9efd0',200:'#f3dc9d',300:'#ecc361',
+          400:'#e5aa35',500:'#c9a96e',600:'#b8892a',700:'#9a6d21',
+          800:'#7e5621',900:'#684721',
+        },
+      },
+      animation: {
+        'fade-up':'fadeUp .5s cubic-bezier(.16,1,.3,1) forwards',
+        'fade-in':'fadeIn .4s ease forwards',
+        shimmer:'shimmer 2s linear infinite',
+      },
+      keyframes: {
+        fadeUp:{'0%':{opacity:'0',transform:'translateY(20px)'},'100%':{opacity:'1',transform:'translateY(0)'}},
+        fadeIn:{'0%':{opacity:'0'},'100%':{opacity:'1'}},
+        shimmer:{'0%':{backgroundPosition:'-200% 0'},'100%':{backgroundPosition:'200% 0'}},
+      },
+      boxShadow: {
+        'card':'0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.08)',
+        'card-hover':'0 4px 8px rgba(0,0,0,.06),0 12px 32px rgba(0,0,0,.12)',
+        'luxury':'0 20px 60px rgba(0,0,0,.3)',
+        'gold-sm':'0 2px 8px rgba(201,169,110,.15)',
+        'gold-md':'0 4px 20px rgba(201,169,110,.2)',
+      },
+    },
+  },
+}
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{margin:0;font-family:'Inter',system-ui,sans-serif;background:#F8F5EF;color:#1A1815;min-height:100vh}
+::selection{background:rgba(201,169,110,.2);color:#1A1815}
+:focus-visible{outline:2px solid #C9A96E;outline-offset:2px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(201,169,110,.3);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(201,169,110,.5)}
+.shimmer-bg{background:linear-gradient(90deg,rgba(201,169,110,.04) 0%,rgba(201,169,110,.12) 50%,rgba(201,169,110,.04) 100%);background-size:200% 100%;animation:shimmer 2s linear infinite}
+.text-gradient{background:linear-gradient(135deg,#C9A96E,#E5C990,#B8892A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hide{display:none!important}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.line-clamp-3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================================================
+   LA MAISON DE BÉBÉ — Complete CRM Application
+   Pure vanilla JS + HTML rendering, no build step required
+   ============================================================ */
+
+// ─── STATE ───────────────────────────────────────────────────
+const STATE = {
+  currentUser: null,
+  currentRoute: 'login',
+  routeParams: {},
+  sidebarOpen: false,
+
+  users: [
+    {id:'admin-001',email:'agripina@lamaisondebebe.com',password:'admin2024',role:'admin',name:'Agripina Laurent'},
+    {id:'cg-001',email:'sophia@example.com',password:'demo',role:'caregiver',name:'Sophia Marchetti',profileId:'cgp-001'},
+    {id:'cg-002',email:'isabelle@example.com',password:'demo',role:'caregiver',name:'Isabelle Fontaine',profileId:'cgp-002'},
+    {id:'cg-003',email:'nadia@example.com',password:'demo',role:'caregiver',name:'Nadia Ostrovsky',profileId:'cgp-003'},
+    {id:'cg-004',email:'amara@example.com',password:'demo',role:'caregiver',name:'Amara Diallo',profileId:'cgp-004'},
+    {id:'fam-001',email:'family@example.com',password:'demo',role:'family',name:'Estate Manager',profileId:'famp-001'},
+    {id:'fam-002',email:'family2@example.com',password:'demo',role:'family',name:'Private Secretary',profileId:'famp-002'},
+  ],
+
+  caregiverProfiles: [
+    {
+      id:'cgp-001',userId:'cg-001',
+      photo:'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face',
+      firstName:'Sophia',lastName:'Marchetti',location:'London, United Kingdom',
+      yearsOfExperience:12,languages:['English','Italian','French'],
+      bio:"With over a decade of dedicated newborn care experience serving elite families across Europe and the Middle East, I bring a calm, intuitive, and deeply professional presence to every home I enter. My approach is grounded in evidence-based sleep science and a profound respect for each family's culture and privacy.",
+      skills:['Newborn Care','Sleep Training','Travel Ready','CPR Certified','Multiples','Multilingual'],
+      certifications:[
+        {id:'c1',title:'Newborn Care Specialist',issuer:'International Nanny Association',year:'2018'},
+        {id:'c2',title:'Pediatric First Aid & CPR',issuer:'British Red Cross',year:'2023'},
+        {id:'c3',title:'Sleep Sense Certified Consultant',issuer:'Sleep Sense',year:'2020'},
+      ],
+      videoUrl:'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      availabilityType:'immediate',
+      documents:['background_check_2024.pdf','cpr_cert_2024.pdf'],
+      profileCompletion:95,hourlyRate:'Available on request',
+    },
+    {
+      id:'cgp-002',userId:'cg-002',
+      photo:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=400&fit=crop&crop=face',
+      firstName:'Isabelle',lastName:'Fontaine',location:'Paris, France',
+      yearsOfExperience:8,languages:['French','English','Spanish'],
+      bio:"A former pediatric nurse turned elite newborn care specialist, I combine clinical precision with genuine warmth. I have cared for families across the French Riviera, Monaco, and New York, maintaining absolute discretion at all times. My specialty is supporting first-time parents through the fourth trimester with confidence and grace.",
+      skills:['Newborn Care','Sleep Training','Travel Ready','CPR Certified','Cooking','Multilingual'],
+      certifications:[
+        {id:'c4',title:'Registered Pediatric Nurse (RN)',issuer:'Ordre National des Infirmiers',year:'2016'},
+        {id:'c5',title:'Certified Postpartum Doula',issuer:'DONA International',year:'2019'},
+      ],
+      videoUrl:'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      availabilityType:'date_range',availabilityFrom:'2025-01-15',availabilityTo:'2025-12-31',
+      documents:['background_check.pdf'],
+      profileCompletion:88,hourlyRate:'Available on request',
+    },
+    {
+      id:'cgp-003',userId:'cg-003',
+      photo:'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=face',
+      firstName:'Nadia',lastName:'Ostrovsky',location:'Geneva, Switzerland',
+      yearsOfExperience:15,languages:['Russian','English','German','French'],
+      bio:"Fifteen years of exceptional child care across the world's most private estates have shaped my practice into something singular: I do not merely care for children — I protect the rhythm of the entire household. Fluent in four languages, trained in Montessori pedagogy, and deeply experienced with multiples and special needs children.",
+      skills:['Newborn Care','Sleep Training','Travel Ready','Special Needs','Multilingual','Montessori','Multiples'],
+      certifications:[
+        {id:'c6',title:'Montessori Practitioner (0–3)',issuer:'AMI',year:'2015'},
+        {id:'c7',title:'Special Needs Childcare Certificate',issuer:'CACHE',year:'2017'},
+        {id:'c8',title:'Advanced CPR & First Aid',issuer:'Swiss Red Cross',year:'2023'},
+      ],
+      videoUrl:'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      availabilityType:'immediate',
+      documents:['interpol_check.pdf','first_aid_cert.pdf'],
+      profileCompletion:100,hourlyRate:'Available on request',
+    },
+    {
+      id:'cgp-004',userId:'cg-004',
+      photo:'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=400&fit=crop&crop=face',
+      firstName:'Amara',lastName:'Diallo',location:'Dubai, UAE',
+      yearsOfExperience:6,languages:['English','Arabic','Wolof'],
+      bio:"A certified sleep consultant and newborn care specialist with hands-on experience in Dubai's most exclusive family residences and private yachts. I bring infectious warmth, impeccable professionalism, and an instinctive understanding of newborn needs that families consistently describe as transformative.",
+      skills:['Newborn Care','Sleep Training','Travel Ready','CPR Certified','Multilingual','Licensed Driver'],
+      certifications:[
+        {id:'c9',title:'Newborn Care Specialist Certification',issuer:'Newborn Care Solutions',year:'2021'},
+        {id:'c10',title:'Gentle Sleep Coaching',issuer:'CGSC',year:'2022'},
+      ],
+      videoUrl:'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      availabilityType:'immediate',
+      documents:['police_clearance.pdf'],
+      profileCompletion:78,hourlyRate:'Available on request',
+    },
+  ],
+
+  familyProfiles: [
+    {id:'famp-001',userId:'fam-001',familyCode:'F-CHEVAL',contactPerson:'Estate Manager',location:'Mayfair, London'},
+    {id:'famp-002',userId:'fam-002',familyCode:'F-AZUR',contactPerson:'Private Secretary',location:'Monaco'},
+  ],
+
+  careRequests: [
+    {
+      id:'req-001',familyId:'famp-001',type:'Newborn Care Specialist',
+      children:[{age:'Newborn (2 weeks)',allergies:'None known',medicalNotes:'Premature at 36 weeks'}],
+      startDate:'2025-01-15',duration:'12 weeks',liveIn:true,travelRequired:true,
+      languages:['English','French'],driverLicense:true,cooking:false,
+      budget:'Premium',
+      notes:"Family values absolute discretion. NDA required. Travel to Côte d'Azur expected in March.",
+      status:'shortlisted',
+      statusLog:[
+        {status:'new',date:'Oct 15, 2024'},
+        {status:'reviewing',date:'Oct 17, 2024',note:'Agripina reviewing caregiver pool'},
+        {status:'shortlisted',date:'Nov 1, 2024',note:'3 candidates presented to family'},
+      ],
+    },
+    {
+      id:'req-002',familyId:'famp-002',type:'Travel Nanny',
+      children:[
+        {age:'3 months',allergies:'None',medicalNotes:''},
+        {age:'2 years',allergies:'Lactose intolerant',medicalNotes:'Dairy-free diet required'},
+      ],
+      startDate:'2025-02-01',duration:'Ongoing',liveIn:false,travelRequired:true,
+      languages:['French','English'],driverLicense:true,cooking:true,
+      notes:'Family travels extensively. Must be comfortable with private aviation. Monaco primary residence.',
+      status:'interview_scheduled',
+      statusLog:[
+        {status:'new',date:'Nov 1, 2024'},
+        {status:'reviewing',date:'Nov 3, 2024'},
+        {status:'shortlisted',date:'Nov 10, 2024'},
+        {status:'interview_scheduled',date:'Nov 20, 2024'},
+      ],
+    },
+    {
+      id:'req-003',familyId:'famp-001',type:'Rotational Nanny',
+      children:[{age:'18 months',allergies:'Peanut allergy (severe)',medicalNotes:'Epipen required at all times'}],
+      startDate:'2025-03-01',duration:'Permanent',liveIn:true,travelRequired:false,
+      languages:['English'],driverLicense:false,cooking:false,
+      notes:'Two-nanny rotation: 4 days on, 4 days off. Extreme allergen awareness required.',
+      status:'reviewing',
+      statusLog:[{status:'new',date:'Nov 10, 2024'},{status:'reviewing',date:'Nov 12, 2024'}],
+    },
+  ],
+
+  shortlists: [
+    {id:'sl-001',requestId:'req-001',caregiverIds:['cgp-001','cgp-002','cgp-003'],presentedAt:'Nov 1, 2024',status:'presented'},
+    {id:'sl-002',requestId:'req-002',caregiverIds:['cgp-002','cgp-001','cgp-003'],presentedAt:'Nov 10, 2024',selectedId:'cgp-002',status:'selection_made'},
+  ],
+
+  interviews: [
+    {id:'int-001',requestId:'req-002',caregiverId:'cgp-002',familyId:'famp-002',
+     scheduledTime:'2024-12-10T14:00:00Z',displayTime:'December 10, 2024 at 14:00',
+     message:'We look forward to meeting you. This will be a private video call.',status:'confirmed'},
+  ],
+
+  actionLogs:[],
+
+  // Modal/overlay state
+  activeModal: null,
+  modalData: {},
+
+  // Form edit state for caregiver
+  caregiverEditTab: 'info',
+  profileEditForm: null,
+
+  // New request wizard
+  newRequestStep: 1,
+  newRequestForm: {
+    type:'',children:[{age:'',allergies:'',medicalNotes:''}],
+    startDate:'',duration:'',liveIn:false,travelRequired:false,
+    languages:[],driverLicense:false,cooking:false,budget:'',notes:'',
+  },
+  newRequestSubmitted: false,
+
+  // Schedule interview
+  scheduleDate:'', scheduleTime:'', scheduleMessage:'', scheduleSubmitted:false,
+  scheduleTargetCaregiverId:'', scheduleTargetRequestId:'',
+
+  // Match maker
+  matchSelectedIds: [],
+  matchRequestId: '',
+  matchPresented: false,
+
+  // Admin send profile
+  sendProfileCaregiverId: '',
+};
+
+// ─── ROUTER ──────────────────────────────────────────────────
+function navigate(route, params={}) {
+  STATE.currentRoute = route;
+  STATE.routeParams = params;
+  STATE.sidebarOpen = false;
+  render();
+  window.scrollTo(0,0);
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmt(d){ if(!d) return '—'; try{ return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}); }catch(e){ return d; } }
+function fmtDT(d){ if(!d) return '—'; try{ return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){ return d; } }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function getHour(){ const h=new Date().getHours(); return h<12?'morning':h<17?'afternoon':'evening'; }
+function getCaregiverById(id){ return STATE.caregiverProfiles.find(p=>p.id===id); }
+function getFamilyById(id){ return STATE.familyProfiles.find(p=>p.id===id); }
+function getProfileByUserId(userId){ return STATE.caregiverProfiles.find(p=>p.userId===userId); }
+function getFamilyByUserId(userId){ return STATE.familyProfiles.find(p=>p.userId===userId); }
+function getRequestsByFamilyId(fid){ return STATE.careRequests.filter(r=>r.familyId===fid); }
+function getShortlistByRequestId(rid){ return STATE.shortlists.find(s=>s.requestId===rid); }
+function getInterviewByRequestId(rid){ return STATE.interviews.find(i=>i.requestId===rid); }
+
+function statusBadgeClass(s){
+  const m={new:'bg-blue-50 text-blue-700 border-blue-200',reviewing:'bg-amber-50 text-amber-700 border-amber-200',
+    shortlisted:'bg-yellow-50 text-yellow-700 border-yellow-200',interview_scheduled:'bg-emerald-50 text-emerald-700 border-emerald-200',closed:'bg-gray-100 text-gray-500 border-gray-200'};
+  return m[s]||'bg-gray-100 text-gray-500 border-gray-200';
+}
+function statusLabel(s){
+  const m={new:'New Request',reviewing:'Under Review',shortlisted:'Shortlisted',interview_scheduled:'Interview Scheduled',closed:'Closed'};
+  return m[s]||s;
+}
+
+// ─── COMPONENTS ───────────────────────────────────────────────
+function goldBtn(label, onclick='', variant='primary', size='md', extra=''){
+  const sizes={sm:'px-4 py-2 text-xs',md:'px-6 py-3 text-sm',lg:'px-8 py-4 text-base'};
+  const variants={
+    primary:'bg-champagne text-charcoal hover:bg-gold-600 shadow-gold-sm hover:shadow-gold-md',
+    secondary:'border border-champagne text-champagne hover:bg-champagne/10',
+    ghost:'text-champagne hover:bg-champagne/10',
+    danger:'bg-red-600 text-white hover:bg-red-700',
+  };
+  return `<button onclick="${onclick}" class="inline-flex items-center justify-center gap-2 font-sans font-medium tracking-wide rounded-sm transition-all duration-200 hover:-translate-y-px active:translate-y-0 focus-visible:ring-2 focus-visible:ring-champagne focus-visible:outline-none ${sizes[size]||sizes.md} ${variants[variant]||variants.primary} ${extra}">${label}</button>`;
+}
+
+function skillChip(skill, selected=false){
+  const cls = selected
+    ? 'bg-champagne/15 border-champagne/40 text-gold-700'
+    : 'bg-ivory-50 border-ivory-300 text-obsidian-600';
+  return `<span class="inline-flex items-center px-2.5 py-1 rounded-sm text-xs font-medium border ${cls}">${esc(skill)}</span>`;
+}
+
+function shimmerCard(){
+  return `<div class="rounded-sm bg-white border border-ivory-200 p-6 space-y-4">
+    <div class="flex items-center gap-4"><div class="w-14 h-14 rounded-full shimmer-bg"></div><div class="flex-1 space-y-2"><div class="h-4 rounded shimmer-bg w-3/4"></div><div class="h-3 rounded shimmer-bg w-1/2"></div></div></div>
+    <div class="space-y-2"><div class="h-3 rounded shimmer-bg"></div><div class="h-3 rounded shimmer-bg w-5/6"></div></div>
+    <div class="flex gap-2"><div class="h-6 rounded shimmer-bg w-20"></div><div class="h-6 rounded shimmer-bg w-24"></div></div>
+  </div>`;
+}
+
+function emptyState(icon, title, desc, actionHtml=''){
+  return `<div class="flex flex-col items-center justify-center py-20 px-8 text-center">
+    <div class="w-16 h-16 rounded-full bg-champagne/8 flex items-center justify-center mb-6 text-champagne">${icon}</div>
+    <h3 class="font-serif text-xl text-obsidian-800 mb-2">${esc(title)}</h3>
+    <p class="text-sm text-obsidian-400 max-w-sm leading-relaxed mb-6">${esc(desc)}</p>
+    ${actionHtml}
+  </div>`;
+}
+
+// SVG icons
+const ICONS = {
+  dashboard:`<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>`,
+  user:`<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,
+  file:`<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+  star:`<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  users:`<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`,
+  list:`<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
+  git:`<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 009 9"/></svg>`,
+  logout:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
+  menu:`<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`,
+  x:`<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  check:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`,
+  chevron_right:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`,
+  chevron_left:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>`,
+  chevron_down:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>`,
+  play:`<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>`,
+  map_pin:`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  globe:`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>`,
+  clock:`<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+  calendar:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  award:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>`,
+  send:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
+  eye:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  plus:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  trash:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`,
+  filter:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>`,
+  search:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+  alert:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  lock:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`,
+  mail:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+  video:`<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>`,
+  save:`<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+  trend:`<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+  more:`<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`,
+};
+
+// ─── SHELL ───────────────────────────────────────────────────
+function renderShell(content){
+  const u = STATE.currentUser;
+  const isAdmin = u.role==='admin';
+  const isCaregiver = u.role==='caregiver';
+  const isFamily = u.role==='family';
+
+  const navItems = isAdmin ? [
+    {label:'Dashboard',route:'admin-dashboard',icon:ICONS.dashboard},
+    {label:'Caregivers',route:'admin-caregivers',icon:ICONS.users},
+    {label:'Requests',route:'admin-requests',icon:ICONS.list},
+    {label:'Matches',route:'admin-matches',icon:ICONS.git},
+  ] : isCaregiver ? [
+    {label:'Dashboard',route:'cg-dashboard',icon:ICONS.dashboard},
+    {label:'My Profile',route:'cg-profile',icon:ICONS.user},
+    {label:'Edit Profile',route:'cg-edit',icon:ICONS.file},
+    {label:'Video Intro',route:'cg-video',icon:ICONS.video},
+  ] : [
+    {label:'Dashboard',route:'fam-dashboard',icon:ICONS.dashboard},
+    {label:'New Request',route:'fam-new-request',icon:ICONS.file},
+    {label:'My Shortlist',route:'fam-shortlist',icon:ICONS.star},
+  ];
+
+  const roleLabel = isAdmin ? 'Concierge Suite' : isCaregiver ? 'Caregiver Portal' : 'Family Portal';
+
+  const sidebar = `
+  <div class="flex flex-col h-full bg-obsidian-950 overflow-y-auto">
+    <div class="px-6 py-8 border-b border-white/10">
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-0.5 h-9 bg-champagne rounded-full"></div>
+        <div><p class="font-serif text-lg text-ivory-100 leading-tight">La Maison</p><p class="font-serif text-lg text-champagne leading-tight italic">de BéBé</p></div>
+      </div>
+      <p class="text-xs text-obsidian-500 mt-3 tracking-widest uppercase">${roleLabel}</p>
+    </div>
+    <nav class="flex-1 px-3 py-6 space-y-1">
+      ${navItems.map(item=>{
+        const active = STATE.currentRoute===item.route || STATE.currentRoute.startsWith(item.route+'-') ;
+        return `<button onclick="navigate('${item.route}')" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-sm text-sm transition-all duration-150 group ${active?'bg-champagne/15 text-champagne border border-champagne/20':'text-obsidian-300 hover:text-ivory-200 hover:bg-white/5'}">
+          <span class="${active?'text-champagne':'text-obsidian-500 group-hover:text-obsidian-300'}">${item.icon}</span>
+          <span class="flex-1 text-left">${item.label}</span>
+          ${active?`<span class="text-champagne/60">${ICONS.chevron_right}</span>`:''}
+        </button>`;
+      }).join('')}
+    </nav>
+    <div class="px-3 py-4 border-t border-white/10">
+      <div class="px-3 py-2 mb-2">
+        <p class="text-xs text-obsidian-300 truncate font-medium">${esc(u.name)}</p>
+        <p class="text-xs text-obsidian-500 truncate mt-0.5">${esc(u.email)}</p>
+      </div>
+      <button onclick="doLogout()" class="flex items-center gap-3 w-full px-3 py-2.5 rounded-sm text-sm text-obsidian-400 hover:text-red-400 hover:bg-red-500/8 transition-all duration-150">
+        ${ICONS.logout} Sign Out
+      </button>
+    </div>
+  </div>`;
+
+  return `
+  <div class="min-h-screen flex bg-charcoal">
+    <!-- Desktop Sidebar -->
+    <aside class="hidden lg:flex flex-col w-64 min-h-screen fixed top-0 left-0 z-30">${sidebar}</aside>
+
+    <!-- Mobile Sidebar Overlay -->
+    ${STATE.sidebarOpen ? `
+    <div class="lg:hidden fixed inset-0 z-50 flex">
+      <div class="absolute inset-0 bg-charcoal/70 backdrop-blur-sm" onclick="closeSidebar()"></div>
+      <aside class="relative w-72 h-full shadow-luxury" style="animation:slideIn .3s cubic-bezier(.16,1,.3,1)">
+        <button onclick="closeSidebar()" class="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full text-obsidian-400 hover:text-ivory-200 hover:bg-white/8">${ICONS.x}</button>
+        ${sidebar}
+      </aside>
+    </div>` : ''}
+
+    <!-- Main -->
+    <main class="flex-1 lg:ml-64 min-h-screen flex flex-col">
+      <header class="sticky top-0 z-20 bg-parchment/90 backdrop-blur-md border-b border-ivory-200 px-4 lg:px-8 h-16 flex items-center justify-between">
+        <button onclick="openSidebar()" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-sm text-obsidian-500 hover:bg-ivory-100 transition-colors">${ICONS.menu}</button>
+        <p class="hidden lg:block text-xs text-obsidian-400 tracking-widest uppercase">${roleLabel}</p>
+        <div class="flex items-center gap-3">
+          <p class="text-sm font-medium text-obsidian-800 hidden sm:block">${esc(u.name)}</p>
+          <div class="w-9 h-9 rounded-full bg-champagne/20 border border-champagne/30 flex items-center justify-center">
+            <span class="text-xs font-semibold text-champagne">${u.name.charAt(0).toUpperCase()}</span>
+          </div>
+        </div>
+      </header>
+      <div class="flex-1 bg-parchment">${content}</div>
+    </main>
+  </div>
+  ${renderModal()}`;
+}
+
+function renderModal(){
+  const m = STATE.activeModal;
+  if(!m) return '';
+
+  let body = '';
+  if(m==='video'){
+    const url = STATE.modalData.url||'';
+    const name = STATE.modalData.name||'Introduction';
+    body=`<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-charcoal/80 backdrop-blur-sm" style="animation:fadeIn .25s ease">
+      <div class="relative w-full max-w-3xl bg-black rounded-sm overflow-hidden shadow-luxury">
+        <div class="flex items-center justify-between px-4 py-3 bg-obsidian-950">
+          <p class="text-sm text-ivory-200 font-medium">${esc(name)}</p>
+          <button onclick="closeModal()" class="text-obsidian-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">${ICONS.x}</button>
+        </div>
+        <div style="position:relative;padding-bottom:56.25%;height:0">
+          <iframe src="${esc(url)}" title="Video" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen style="position:absolute;top:0;left:0;width:100%;height:100%;border:0"></iframe>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if(m==='request-more'){
+    const sent = STATE.modalData.sent;
+    body=`<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" style="animation:fadeIn .25s ease">
+      <div class="absolute inset-0 bg-charcoal/60 backdrop-blur-sm" onclick="closeModal()"></div>
+      <div class="relative w-full max-w-xl bg-parchment rounded-t-2xl sm:rounded-sm shadow-luxury overflow-hidden">
+        <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-ivory-200">
+          <h2 class="font-serif text-xl text-obsidian-900">Request More Options</h2>
+          <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-full text-obsidian-400 hover:bg-ivory-100">${ICONS.x}</button>
+        </div>
+        <div class="p-6">
+          ${sent?`<div class="text-center py-8">
+            <div class="w-12 h-12 rounded-full bg-champagne/10 flex items-center justify-center mx-auto mb-4 text-champagne">${ICONS.star}</div>
+            <p class="font-serif text-xl text-obsidian-800 mb-2">Message Sent</p>
+            <p class="text-sm text-obsidian-400 mb-6">Agripina has been notified and will resume the search.</p>
+            ${goldBtn('Close','closeModal()')}
+          </div>`:`<div class="space-y-5">
+            <p class="text-sm text-obsidian-500 leading-relaxed">If none of the presented candidates feel quite right, Agripina will return to the search.</p>
+            <div>
+              <label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Additional Guidance (Optional)</label>
+              <textarea id="req-more-note" rows="4" placeholder="What was missing?" class="w-full px-4 py-3 bg-white border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne resize-none"></textarea>
+            </div>
+            ${goldBtn('Notify Agripina','submitRequestMore()','primary','md','w-full')}
+          </div>`}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if(m==='send-profile'){
+    const done = STATE.modalData.done;
+    const cg = STATE.caregiverProfiles.find(p=>p.id===STATE.sendProfileCaregiverId);
+    body=`<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" style="animation:fadeIn .25s ease">
+      <div class="absolute inset-0 bg-charcoal/60 backdrop-blur-sm" onclick="closeModal()"></div>
+      <div class="relative w-full max-w-xl bg-parchment rounded-t-2xl sm:rounded-sm shadow-luxury overflow-hidden">
+        <div class="flex items-center justify-between px-6 pt-6 pb-4 border-b border-ivory-200">
+          <h2 class="font-serif text-xl text-obsidian-900">Send Profile to Family</h2>
+          <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-full text-obsidian-400 hover:bg-ivory-100">${ICONS.x}</button>
+        </div>
+        <div class="p-6">
+          ${done?`<div class="text-center py-8">
+            <div class="w-12 h-12 rounded-full bg-champagne/10 flex items-center justify-center mx-auto mb-4 text-champagne">${ICONS.send}</div>
+            <p class="font-serif text-xl text-obsidian-800 mb-2">Profile Sent</p>
+            <p class="text-sm text-obsidian-400 mb-6">Logged in your action records.</p>
+            ${goldBtn('Done','closeModal()')}
+          </div>`:`<div class="space-y-5">
+            <p class="text-sm text-obsidian-500 leading-relaxed">Send ${esc(cg?.firstName||'')}'s profile directly to a family without the standard 3-candidate shortlist.</p>
+            <div>
+              <label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Select Family</label>
+              <select id="send-fam-select" class="w-full px-4 py-3 bg-white border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne">
+                <option value="">Choose a family…</option>
+                ${STATE.familyProfiles.map(f=>`<option value="${f.id}">Family ${esc(f.familyCode)}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Note (Optional)</label>
+              <textarea id="send-note" rows="3" placeholder="Add context for your records…" class="w-full px-4 py-3 bg-white border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne resize-none"></textarea>
+            </div>
+            ${goldBtn('Send Profile','doSendProfile()','primary','md','w-full')}
+          </div>`}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  return body;
+}
+
+// ─── PAGES ───────────────────────────────────────────────────
+
+/* LOGIN */
+function renderLogin(){
+  const err = STATE.loginError||'';
+  const role = STATE.loginRole||'family';
+  const isSignup = STATE.loginIsSignup||false;
+  const roleLabels = {family:{label:'Family',hint:'UHNW Families & Estate Managers'},caregiver:{label:'Care Professional',hint:'Nannies, NCS, Travel Staff'},admin:{label:'Concierge',hint:'La Maison de BéBé Team Only'}};
+  const demos = {admin:{email:'agripina@lamaisondebebe.com',password:'admin2024'},caregiver:{email:'sophia@example.com',password:'demo'},family:{email:'family@example.com',password:'demo'}};
+
+  return `
+  <div class="min-h-screen flex bg-charcoal">
+    <!-- Left branding panel -->
+    <div class="hidden lg:flex flex-col w-1/2 relative overflow-hidden p-16">
+      <div class="absolute inset-0">
+        <div class="absolute inset-0 bg-gradient-to-br from-obsidian-950 via-charcoal to-obsidian-900"></div>
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-champagne/5 blur-3xl"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full bg-champagne/3 blur-2xl"></div>
+      </div>
+      <div class="relative flex-1 flex flex-col justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-px h-12 bg-gradient-to-b from-transparent via-champagne to-transparent"></div>
+          <div><p class="font-serif text-3xl text-ivory-100 leading-tight">La Maison</p><p class="font-serif text-3xl text-champagne leading-tight italic">de BéBé</p></div>
+        </div>
+        <div class="space-y-8">
+          <div>
+            <p class="text-xs tracking-widest uppercase text-champagne/60 mb-6">Private Membership Concierge</p>
+            <h1 class="font-serif text-5xl text-ivory-100 leading-tight mb-6">Where the world's finest families find <em class="text-champagne">extraordinary</em> care.</h1>
+            <p class="text-obsidian-300 text-base leading-relaxed max-w-md">An invitation-only platform connecting ultra-high-net-worth families with the most trusted, vetted, and extraordinary caregiving professionals in the world.</p>
+          </div>
+          <div class="grid grid-cols-3 gap-6 pt-4 border-t border-champagne/10">
+            ${[['100%','Verified Caregivers'],['NDA','Protected Matching'],['24/7','Concierge Access']].map(([n,l])=>`<div><p class="font-serif text-2xl text-champagne">${n}</p><p class="text-xs text-obsidian-400 mt-1">${l}</p></div>`).join('')}
+          </div>
+        </div>
+        <p class="text-xs text-obsidian-600">© ${new Date().getFullYear()} La Maison de BéBé. All rights reserved.</p>
+      </div>
+    </div>
+
+    <!-- Right form panel -->
+    <div class="flex-1 flex items-center justify-center p-6 lg:p-12 bg-parchment">
+      <div class="w-full max-w-md">
+        <div class="lg:hidden mb-10 text-center">
+          <p class="font-serif text-3xl text-obsidian-900 leading-tight">La Maison</p>
+          <p class="font-serif text-3xl text-champagne leading-tight italic">de BéBé</p>
+        </div>
+        <div class="mb-8">
+          <h2 class="font-serif text-3xl text-obsidian-900 mb-2">${isSignup?'Request Access':'Welcome back'}</h2>
+          <p class="text-sm text-obsidian-400">${isSignup?'Create your secure member account.':'Sign in to your private member portal.'}</p>
+        </div>
+
+        <form onsubmit="doLogin(event)" class="space-y-5">
+          <!-- Role selector -->
+          <div>
+            <label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">I am a</label>
+            <div class="relative">
+              <button type="button" onclick="toggleRoleDropdown()" class="w-full flex items-center justify-between px-4 py-3 bg-white border border-ivory-300 rounded-sm text-sm hover:border-champagne/40 focus:outline-none focus:ring-2 focus:ring-champagne transition-colors">
+                <div class="text-left">
+                  <p class="font-medium text-obsidian-800">${roleLabels[role].label}</p>
+                  <p class="text-xs text-obsidian-400">${roleLabels[role].hint}</p>
+                </div>
+                <span class="text-obsidian-400 transition-transform ${STATE.roleDropdownOpen?'rotate-180':''}">${ICONS.chevron_down}</span>
+              </button>
+              ${STATE.roleDropdownOpen?`
+              <div class="absolute top-full left-0 right-0 mt-1 bg-white border border-ivory-200 rounded-sm shadow-card-hover z-10">
+                ${Object.entries(roleLabels).map(([val,{label,hint}])=>`
+                <button type="button" onclick="selectRole('${val}')" class="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-ivory-50 transition-colors ${role===val?'bg-champagne/5':''}">
+                  <div class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${role===val?'bg-champagne':'bg-ivory-300'}"></div>
+                  <div><p class="text-sm font-medium text-obsidian-800">${label}</p><p class="text-xs text-obsidian-400">${hint}</p></div>
+                </button>`).join('')}
+              </div>`:''}
+            </div>
+          </div>
+
+          ${isSignup?`<div>
+            <label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Full Name</label>
+            <input id="login-name" type="text" placeholder="Your full name" class="w-full px-4 py-3 bg-white border border-ivory-300 rounded-sm text-sm text-obsidian-800 placeholder-obsidian-300 focus:outline-none focus:ring-2 focus:ring-champagne" required/>
+          </div>`:''}
+
+          <div>
+            <label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Email Address</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-obsidian-300">${ICONS.mail}</span>
+              <input id="login-email" type="email" placeholder="your@email.com" class="w-full pl-10 pr-4 py-3 bg-white border border-ivory-300 rounded-sm text-sm text-obsidian-800 placeholder-obsidian-300 focus:outline-none focus:ring-2 focus:ring-champagne" required/>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-obsidina-500 uppercase tracking-wider mb-2">Password</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-obsidian-300">${ICONS.lock}</span>
+              <input id="login-password" type="password" placeholder="••••••••" class="w-full pl-10 pr-4 py-3 bg-white border border-ivory-300 rounded-sm text-sm text-obsidian-800 placeholder-obsidian-300 focus:outline-none focus:ring-2 focus:ring-champagne" required/>
+            </div>
+          </div>
+
+          ${err?`<div class="px-4 py-3 bg-red-50 border border-red-200 rounded-sm"><p class="text-sm text-red-600">${esc(err)}</p></div>`:''}
+
+          ${goldBtn(isSignup?'Create Member Account':'Sign In Securely','','primary','lg','w-full')}
+
+          <div class="relative my-2">
+            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-ivory-200"></div></div>
+            <div class="relative flex justify-center"><span class="px-3 bg-parchment text-xs text-obsidian-400">or</span></div>
+          </div>
+
+          <button type="button" onclick="fillDemo()" class="w-full py-2.5 text-xs text-champagne border border-champagne/20 rounded-sm hover:bg-champagne/5 transition-all">
+            Use Demo Credentials (${roleLabels[role].label})
+          </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-obsidian-400">
+          ${isSignup?'Already have access?':'Need access?'}
+          <button onclick="toggleSignup()" class="text-champagne hover:text-gold-600 font-medium transition-colors ml-1">
+            ${isSignup?'Sign in':'Request an invitation'}
+          </button>
+        </p>
+        <p class="mt-8 text-center text-xs text-obsidian-300 leading-relaxed">
+          This platform operates under strict confidentiality protocols. All data is encrypted and protected.
+        </p>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── CAREGIVER DASHBOARD ── */
+function renderCGDashboard(){
+  const u = STATE.currentUser;
+  const p = getProfileByUserId(u.id);
+  const completion = p?.profileCompletion||0;
+
+  const content = `
+  <div class="p-6 lg:p-10 max-w-5xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1) forwards">
+    <div class="mb-10">
+      <p class="text-xs tracking-widest uppercase text-champagne/70 mb-3">Welcome back</p>
+      <h1 class="font-serif text-4xl text-obsidian-900 mb-2">${esc(p?`${p.firstName} ${p.lastName}`:u.name)}</h1>
+      <p class="text-obsidian-400 text-sm">${esc(p?.location||'Complete your profile to get started')}</p>
+    </div>
+
+    ${completion<100?`
+    <div class="mb-8 p-5 rounded-sm border border-champagne/25 bg-champagne/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-start gap-3">
+        <span class="text-champagne mt-0.5 flex-shrink-0">${ICONS.alert}</span>
+        <div>
+          <p class="text-sm font-medium text-obsidian-800">Profile ${completion}% complete</p>
+          <p class="text-xs text-obsidian-400 mt-0.5">Complete your profile to appear in family searches.</p>
+          <div class="mt-3 w-full sm:w-64 bg-ivory-200 rounded-full h-1.5">
+            <div class="bg-champagne h-1.5 rounded-full transition-all duration-700" style="width:${completion}%"></div>
+          </div>
+        </div>
+      </div>
+      ${goldBtn('Complete Profile',"navigate('cg-edit')",'secondary','sm')}
+    </div>`:''}
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+      ${[
+        {icon:ICONS.user,label:'Profile Completion',value:`${completion}%`,sub:completion===100?'Fully visible to families':'Needs attention',color:completion===100?'text-emerald-600':'text-champagne'},
+        {icon:ICONS.star,label:'Experience',value:p?`${p.yearsOfExperience} yrs`:'—',sub:'Years of excellence',color:'text-champagne'},
+        {icon:ICONS.calendar,label:'Availability',value:p?.availabilityType==='immediate'?'Immediate':'Scheduled',sub:p?.availabilityType==='date_range'?`From ${p.availabilityFrom||'—'}`:'Ready to place',color:'text-emerald-600'},
+      ].map(s=>`
+      <div class="bg-white rounded-sm border border-ivory-200 p-5 hover:shadow-card-hover hover:-translate-y-px transition-all duration-200">
+        <div class="${s.color} mb-3">${s.icon}</div>
+        <p class="text-xs text-obsidian-400 uppercase tracking-wider mb-1">${s.label}</p>
+        <p class="font-serif text-2xl ${s.color} mb-0.5">${s.value}</p>
+        <p class="text-xs text-obsidian-400">${s.sub}</p>
+      </div>`).join('')}
+    </div>
+
+    <div class="mb-10">
+      <h2 class="font-serif text-xl text-obsidian-800 mb-5">Quick Actions</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        ${[
+          {icon:ICONS.user,title:'View Public Profile',desc:'See exactly what families see when reviewing your candidacy.',route:'cg-profile'},
+          {icon:ICONS.file,title:'Edit Profile',desc:'Update your bio, skills, certifications, and availability.',route:'cg-edit'},
+          {icon:ICONS.video,title:'Video Introduction',desc:'Upload or link your introduction video — a key factor in selection.',route:'cg-video'},
+          {icon:ICONS.star,title:'Messages & Interviews',desc:'Receive interview invitations and updates from the concierge.',route:'cg-dashboard'},
+        ].map(a=>`
+        <button onclick="navigate('${a.route}')" class="group flex items-start gap-4 p-5 bg-white rounded-sm border border-ivory-200 hover:border-champagne/30 hover:shadow-card-hover hover:-translate-y-px transition-all duration-200 text-left w-full">
+          <div class="w-10 h-10 rounded-full bg-champagne/10 flex items-center justify-center text-champagne flex-shrink-0 group-hover:bg-champagne/20 transition-colors">${a.icon}</div>
+          <div><p class="text-sm font-semibold text-obsidian-800 mb-1">${a.title}</p><p class="text-xs text-obsidian-400 leading-relaxed">${a.desc}</p></div>
+        </button>`).join('')}
+      </div>
+    </div>
+
+    ${p?`
+    <div class="bg-white rounded-sm border border-ivory-200 p-6">
+      <h2 class="font-serif text-xl text-obsidian-800 mb-5">Profile Checklist</h2>
+      <div class="space-y-3">
+        ${[
+          ['Professional photo uploaded', !!p.photo],
+          ['Bio written (min. 100 characters)', p.bio.length>100],
+          ['At least 3 skills selected', p.skills.length>=3],
+          ['At least 1 certification added', p.certifications.length>0],
+          ['Video introduction provided', !!p.videoUrl],
+          ['Documents uploaded', p.documents.length>0],
+          ['Availability configured', true],
+        ].map(([lbl,done])=>`
+        <div class="flex items-center gap-3">
+          ${done?`<span class="text-emerald-500 flex-shrink-0">${ICONS.check}</span>`:`<div class="w-4 h-4 rounded-full border-2 border-ivory-300 flex-shrink-0"></div>`}
+          <span class="text-sm ${done?'text-obsidian-700':'text-obsidian-400'}">${lbl}</span>
+        </div>`).join('')}
+      </div>
+    </div>`:''}
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── CAREGIVER PROFILE VIEW ── */
+function renderCGProfile(){
+  const u = STATE.currentUser;
+  const p = getProfileByUserId(u.id);
+  if(!p) return renderShell(`<div class="p-10">${emptyState(ICONS.user,'No Profile Yet','Your professional profile hasn\'t been created yet.',goldBtn('Create Profile',"navigate('cg-edit')"))}</div>`);
+
+  const content = `
+  <div class="p-6 lg:p-10 max-w-4xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <div class="mb-6 px-4 py-3 bg-obsidian-950/8 border border-obsidian-200 rounded-sm flex items-center justify-between">
+      <p class="text-xs text-obsidian-500"><span class="font-medium text-obsidian-700">Profile Preview</span> — This is exactly what shortlisted families will see.</p>
+      <button onclick="navigate('cg-edit')" class="text-xs text-champagne hover:underline">Edit</button>
+    </div>
+
+    <div class="bg-white rounded-sm border border-ivory-200 overflow-hidden mb-6">
+      <div class="relative h-24 bg-gradient-to-r from-obsidian-900 via-obsidian-800 to-obsidian-900">
+        <div class="absolute inset-0 opacity-30" style="background:radial-gradient(circle at 30% 50%, rgba(201,169,110,0.3), transparent 60%)"></div>
+      </div>
+      <div class="px-6 sm:px-8 pb-8">
+        <div class="flex flex-col sm:flex-row sm:items-end gap-5 -mt-12 mb-6">
+          <div class="relative">
+            <img src="${esc(p.photo)}" alt="${esc(p.firstName)}" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-luxury-sm" loading="eager"/>
+            <div class="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-white"></div>
+          </div>
+          <div class="flex-1">
+            <h1 class="font-serif text-3xl text-obsidian-900">${esc(p.firstName)} ${esc(p.lastName)}</h1>
+            <div class="flex flex-wrap items-center gap-4 mt-2 text-sm text-obsidian-400">
+              <span class="flex items-center gap-1.5">${ICONS.map_pin} ${esc(p.location)}</span>
+              <span class="flex items-center gap-1.5">${ICONS.clock} ${p.yearsOfExperience} years</span>
+              <span class="flex items-center gap-1.5">${ICONS.globe} ${esc(p.languages.join(', '))}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-emerald-50 border border-emerald-200">
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+            <span class="text-xs text-emerald-700 font-medium">${p.availabilityType==='immediate'?'Available Now':'Available Soon'}</span>
+          </div>
+        </div>
+
+        <div class="mb-6"><h2 class="text-xs font-medium text-obsidian-400 uppercase tracking-wider mb-3">About</h2><p class="text-obsidian-600 text-sm leading-relaxed">${esc(p.bio)}</p></div>
+
+        <div class="mb-6"><h2 class="text-xs font-medium text-obsidian-400 uppercase tracking-wider mb-3">Specialisations</h2><div class="flex flex-wrap gap-2">${p.skills.map(s=>skillChip(s,true)).join('')}</div></div>
+
+        ${p.videoUrl?`
+        <div class="mb-6">
+          <h2 class="text-xs font-medium text-obsidian-400 uppercase tracking-wider mb-3">Video Introduction</h2>
+          <button onclick="openVideoModal('${esc(p.videoUrl)}','Introduction — ${esc(p.firstName)} ${esc(p.lastName)}')" class="group flex items-center gap-4 p-4 rounded-sm border border-ivory-200 hover:border-champagne/30 hover:bg-champagne/3 transition-all w-full">
+            <div class="w-12 h-12 rounded-full bg-champagne/10 flex items-center justify-center text-champagne">${ICONS.play}</div>
+            <div class="text-left"><p class="text-sm font-medium text-obsidian-800">Watch Introduction</p><p class="text-xs text-obsidian-400">Personal video by ${esc(p.firstName)}</p></div>
+          </button>
+        </div>`:''}
+
+        ${p.certifications.length>0?`
+        <div class="mb-6">
+          <h2 class="text-xs font-medium text-obsidian-400 uppercase tracking-wider mb-3">Certifications</h2>
+          <div class="space-y-2">
+            ${p.certifications.map(c=>`<div class="flex items-start gap-3 p-3 bg-ivory-50 rounded-sm">
+              <span class="text-champagne mt-0.5 flex-shrink-0">${ICONS.award}</span>
+              <div><p class="text-sm font-medium text-obsidian-800">${esc(c.title)}</p><p class="text-xs text-obsidian-400">${esc(c.issuer)} · ${esc(c.year)}</p></div>
+            </div>`).join('')}
+          </div>
+        </div>`:''}
+
+        ${p.documents.length>0?`
+        <div>
+          <h2 class="text-xs font-medium text-obsidian-400 uppercase tracking-wider mb-3">Verified Documents</h2>
+          <div class="flex flex-wrap gap-2">${p.documents.map(d=>`<div class="flex items-center gap-2 px-3 py-1.5 bg-ivory-50 border border-ivory-200 rounded-sm"><span class="text-obsidian-400">${ICONS.file}</span><span class="text-xs text-obsidian-600">${esc(d)}</span></div>`).join('')}</div>
+        </div>`:''}
+      </div>
+    </div>
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── CAREGIVER EDIT PROFILE ── */
+function renderCGEdit(){
+  const u = STATE.currentUser;
+  if(!STATE.profileEditForm){
+    const p = getProfileByUserId(u.id);
+    STATE.profileEditForm = p ? JSON.parse(JSON.stringify(p)) : {
+      id:null,userId:u.id,photo:'',firstName:'',lastName:'',location:'',yearsOfExperience:1,
+      bio:'',skills:[],certifications:[],languages:[],availabilityType:'immediate',
+      availabilityFrom:'',availabilityTo:'',videoUrl:'',documents:[],profileCompletion:0,hourlyRate:'',
+    };
+  }
+  const f = STATE.profileEditForm;
+  const tab = STATE.caregiverEditTab||'info';
+  const tabs=[{id:'info',l:'Personal Info'},{id:'skills',l:'Skills & Languages'},{id:'certs',l:'Certifications'},{id:'avail',l:'Availability'},{id:'docs',l:'Documents'}];
+  const allSkills=['Newborn Care','Sleep Training','Travel Ready','Special Needs','Multilingual','Cooking','Licensed Driver','Swimming','Homeschooling','CPR Certified','Montessori','Multiples'];
+  const allLangs=['English','French','Spanish','Italian','German','Arabic','Mandarin','Russian','Portuguese','Japanese','Dutch','Wolof'];
+
+  const savedMsg = STATE.profileSaved?`<span class="flex items-center gap-1.5 text-sm text-emerald-600"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Saved</span>`:'';
+
+  let tabContent = '';
+  if(tab==='info'){
+    tabContent=`
+    <div class="space-y-6">
+      <div>
+        <label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-3">Profile Photo</label>
+        ${f.photo?`<div class="flex items-center gap-4">
+          <img src="${esc(f.photo)}" class="w-20 h-20 rounded-full object-cover border-2 border-ivory-200"/>
+          <button onclick="clearEditField('photo')" class="text-xs text-champagne hover:underline">Change Photo</button>
+        </div>`:`<div class="flex flex-col items-center gap-2 p-6 rounded-sm border-2 border-dashed border-ivory-300 cursor-pointer hover:border-champagne/40 bg-ivory-50" onclick="document.getElementById('photo-inp').click()">
+          <span class="text-obsidian-300">${ICONS.save}</span>
+          <p class="text-sm text-obsidian-400">Click to upload professional photo</p>
+          <p class="text-xs text-obsidian-300">JPEG or PNG, min 400×400px</p>
+        </div>
+        <input id="photo-inp" type="file" accept="image/*" class="hidden" onchange="handlePhotoUpload(this)"/>`}
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div><label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">First Name</label><input type="text" value="${esc(f.firstName)}" oninput="updateEditField('firstName',this.value)" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm text-obsidian-800 focus:outline-none focus:ring-2 focus:ring-champagne" placeholder="Sophia"/></div>
+        <div><label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Last Name</label><input type="text" value="${esc(f.lastName)}" oninput="updateEditField('lastName',this.value)" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm text-obsidian-800 focus:outline-none focus:ring-2 focus:ring-champagne" placeholder="Marchetti"/></div>
+        <div><label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Location</label><input type="text" value="${esc(f.location)}" oninput="updateEditField('location',this.value)" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm text-obsidian-800 focus:outline-none focus:ring-2 focus:ring-champagne" placeholder="London, United Kingdom"/></div>
+        <div><label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Years of Experience</label><input type="number" min="0" max="50" value="${f.yearsOfExperience}" oninput="updateEditField('yearsOfExperience',+this.value)" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm text-obsidian-800 focus:outline-none focus:ring-2 focus:ring-champagne"/></div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Professional Summary</label>
+        <textarea rows="6" oninput="updateEditField('bio',this.value)" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm text-obsidian-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-champagne resize-none" placeholder="Write a compelling professional bio...">${esc(f.bio)}</textarea>
+        <p class="text-xs text-obsidian-400 mt-1 text-right">${(f.bio||'').length} characters</p>
+      </div>
+      <div><label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Rate / Budget</label><input type="text" value="${esc(f.hourlyRate||'')}" oninput="updateEditField('hourlyRate',this.value)" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm text-obsidian-800 focus:outline-none focus:ring-2 focus:ring-champagne" placeholder="Available on request"/></div>
+    </div>`;
+  } else if(tab==='skills'){
+    tabContent=`
+    <div class="space-y-8">
+      <div>
+        <h3 class="text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-4">Specialisations</h3>
+        <div class="flex flex-wrap gap-2">
+          ${allSkills.map(s=>`<button type="button" onclick="toggleEditSkill('${s}')" class="px-3 py-1.5 rounded-sm text-xs font-medium border transition-all ${(f.skills||[]).includes(s)?'bg-champagne/15 border-champagne/40 text-gold-700':'bg-ivory-50 border-ivory-300 text-obsidian-600 hover:border-champagne/30'}">${s}</button>`).join('')}
+        </div>
+        <p class="text-xs text-obsidian-400 mt-3">${(f.skills||[]).length} skills selected</p>
+      </div>
+      <div>
+        <h3 class="text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-4">Languages Spoken</h3>
+        <div class="flex flex-wrap gap-2">
+          ${allLangs.map(l=>`<button type="button" onclick="toggleEditLang('${l}')" class="px-3 py-1.5 rounded-sm text-xs font-medium border transition-all ${(f.languages||[]).includes(l)?'bg-champagne/15 border-champagne/40 text-gold-700':'bg-ivory-50 border-ivory-300 text-obsidian-600 hover:border-champagne/30'}">${l}</button>`).join('')}
+        </div>
+        <p class="text-xs text-obsidian-400 mt-3">${(f.languages||[]).length} languages selected</p>
+      </div>
+    </div>`;
+  } else if(tab==='certs'){
+    tabContent=`
+    <div class="space-y-5">
+      ${(f.certifications||[]).map((c,i)=>`
+      <div class="p-5 bg-parchment rounded-sm border border-ivory-200 space-y-4">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs font-medium text-obsidian-500 uppercase tracking-wider">Certification ${i+1}</p>
+          <button onclick="removeCert(${i})" class="text-obsidian-300 hover:text-red-500 transition-colors">${ICONS.trash}</button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="sm:col-span-2"><label class="block text-xs text-obsidian-400 mb-1.5">Certification Title</label><input type="text" value="${esc(c.title)}" oninput="updateCert(${i},'title',this.value)" class="w-full px-3 py-2.5 bg-white border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne" placeholder="Newborn Care Specialist"/></div>
+          <div><label class="block text-xs text-obsidian-400 mb-1.5">Issuing Organisation</label><input type="text" value="${esc(c.issuer)}" oninput="updateCert(${i},'issuer',this.value)" class="w-full px-3 py-2.5 bg-white border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne" placeholder="INA"/></div>
+          <div><label class="block text-xs text-obsidian-400 mb-1.5">Year</label><input type="text" value="${esc(c.year)}" oninput="updateCert(${i},'year',this.value)" class="w-full px-3 py-2.5 bg-white border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne" placeholder="2023"/></div>
+        </div>
+      </div>`).join('')}
+      <button type="button" onclick="addCert()" class="flex items-center gap-2 text-sm text-champagne hover:text-gold-600 transition-colors py-2">${ICONS.plus} Add Certification</button>
+      ${(f.certifications||[]).length===0?`<p class="text-center text-xs text-obsidian-400 py-6">No certifications added yet. Add certifications to increase family confidence.</p>`:''}
+    </div>`;
+  } else if(tab==='avail'){
+    tabContent=`
+    <div class="space-y-6">
+      <div>
+        <h3 class="text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-4">Availability Status</h3>
+        <div class="flex flex-col gap-3">
+          ${[{v:'immediate',l:'Immediately Available',d:'I am available to start right away'},{v:'date_range',l:'Available from a specific date',d:'Set the date range when you are available'}].map(o=>`
+          <label class="flex items-start gap-3 p-4 rounded-sm border cursor-pointer transition-all ${f.availabilityType===o.v?'border-champagne/40 bg-champagne/5':'border-ivory-200 hover:border-champagne/20'}">
+            <input type="radio" name="avail" value="${o.v}" ${f.availabilityType===o.v?'checked':''} onchange="updateEditField('availabilityType','${o.v}')" class="mt-0.5 accent-champagne"/>
+            <div><p class="text-sm font-medium text-obsidian-800">${o.l}</p><p class="text-xs text-obsidian-400 mt-0.5">${o.d}</p></div>
+          </label>`).join('')}
+        </div>
+      </div>
+      ${f.availabilityType==='date_range'?`
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div><label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Available From</label><input type="date" value="${esc(f.availabilityFrom||'')}" onchange="updateEditField('availabilityFrom',this.value)" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne"/></div>
+        <div><label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Available Until</label><input type="date" value="${esc(f.availabilityTo||'')}" onchange="updateEditField('availabilityTo',this.value)" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne"/></div>
+      </div>`:''}
+    </div>`;
+  } else if(tab==='docs'){
+    tabContent=`
+    <div class="space-y-6">
+      <div>
+        <h3 class="text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Upload Documents</h3>
+        <p class="text-xs text-obsidian-400 mb-4">All documents are stored securely and only shared with families after your consent.</p>
+        <div class="flex flex-col items-center gap-2 p-6 rounded-sm border-2 border-dashed border-ivory-300 cursor-pointer hover:border-champagne/40 bg-ivory-50" onclick="addMockDoc()">
+          <span class="text-obsidian-300">${ICONS.file}</span>
+          <p class="text-sm text-obsidian-400">Click to upload document</p>
+          <p class="text-xs text-obsidian-300">PDF, JPEG or PNG accepted</p>
+        </div>
+      </div>
+      ${(f.documents||[]).length>0?`
+      <div class="space-y-2">
+        ${(f.documents||[]).map((d,i)=>`
+        <div class="flex items-center gap-3 p-3 bg-parchment rounded-sm border border-ivory-200">
+          <div class="w-8 h-8 rounded-sm bg-champagne/10 flex items-center justify-center text-champagne text-xs font-bold flex-shrink-0">PDF</div>
+          <div class="flex-1 min-w-0"><p class="text-sm text-obsidian-700 truncate">${esc(d)}</p></div>
+          <button onclick="removeDoc(${i})" class="text-obsidian-300 hover:text-red-500 transition-colors">${ICONS.trash}</button>
+        </div>`).join('')}
+      </div>`:`<p class="text-center text-xs text-obsidian-400 py-4">No documents uploaded yet.</p>`}
+    </div>`;
+  }
+
+  const content = `
+  <div class="p-6 lg:p-10 max-w-4xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div><h1 class="font-serif text-3xl text-obsidian-900 mb-1">Edit Profile</h1><p class="text-sm text-obsidian-400">Manage your professional profile</p></div>
+      <div class="flex items-center gap-3">
+        ${savedMsg}
+        ${goldBtn(`${ICONS.save} Save Changes`,'saveProfile()','primary','sm')}
+      </div>
+    </div>
+
+    <div class="flex overflow-x-auto gap-0 mb-8 border-b border-ivory-200">
+      ${tabs.map(t=>`<button onclick="setEditTab('${t.id}')" class="px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all -mb-px ${tab===t.id?'border-champagne text-champagne':'border-transparent text-obsidian-400 hover:text-obsidian-700'}">${t.l}</button>`).join('')}
+    </div>
+
+    <div class="bg-white rounded-sm border border-ivory-200 p-6 lg:p-8">${tabContent}</div>
+
+    <div class="mt-6 flex justify-end">${goldBtn(`${ICONS.save} Save All Changes`,'saveProfile()')}</div>
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── CAREGIVER VIDEO ── */
+function renderCGVideo(){
+  const u = STATE.currentUser;
+  const p = getProfileByUserId(u.id);
+  const videoUrl = STATE.videoEditUrl !== undefined ? STATE.videoEditUrl : (p?.videoUrl||'');
+  const saved = STATE.videoSaved||false;
+
+  const content = `
+  <div class="p-6 lg:p-10 max-w-3xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <div class="mb-8">
+      <p class="text-xs tracking-widest uppercase text-champagne/70 mb-3">Caregiver Portal</p>
+      <h1 class="font-serif text-3xl text-obsidian-900 mb-2">Video Introduction</h1>
+      <p class="text-sm text-obsidian-400 max-w-lg leading-relaxed">A personal video introduction is one of the most powerful ways to connect with a family before they've even met you.</p>
+    </div>
+
+    <div class="mb-8 p-5 bg-champagne/5 border border-champagne/20 rounded-sm">
+      <h2 class="text-sm font-semibold text-obsidian-800 mb-3">Video Tips</h2>
+      <ul class="space-y-2 text-xs text-obsidian-500 leading-relaxed">
+        ${['Keep it 1–3 minutes — focused and warm.','Dress professionally, in a calm, well-lit space.','Speak to the camera as if speaking to the family directly.','Mention your approach, experience, and what makes you unique.','Background should be neutral — a home office or living room is ideal.'].map((t,i)=>`<li class="flex items-start gap-2"><span class="text-champagne font-serif mt-0.5">${i+1}.</span><span>${t}</span></li>`).join('')}
+      </ul>
+    </div>
+
+    <div class="bg-white rounded-sm border border-ivory-200 p-6 mb-6">
+      <label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-3">YouTube or Vimeo URL</label>
+      <input type="url" id="video-url-inp" value="${esc(videoUrl)}" oninput="STATE.videoEditUrl=this.value" placeholder="https://www.youtube.com/watch?v=..." class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm text-obsidian-800 focus:outline-none focus:ring-2 focus:ring-champagne"/>
+      <p class="text-xs text-obsidian-400 mt-2">Paste the full YouTube or Vimeo video URL.</p>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      ${videoUrl?goldBtn(`${ICONS.play} Preview Video`,"openVideoModal(document.getElementById('video-url-inp').value,'Video Preview')",'secondary'):''}
+      ${goldBtn(`${ICONS.save} Save Introduction`,'saveVideo()')}
+      ${saved?`<span class="flex items-center gap-1.5 text-sm text-emerald-600">${ICONS.check} Saved successfully</span>`:''}
+    </div>
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── FAMILY DASHBOARD ── */
+function renderFamDashboard(){
+  const u = STATE.currentUser;
+  const fp = getFamilyByUserId(u.id);
+  const requests = fp ? getRequestsByFamilyId(fp.id) : [];
+  const shortlisted = requests.filter(r=>r.status==='shortlisted');
+  const interviews = requests.filter(r=>r.status==='interview_scheduled');
+  const active = requests.filter(r=>r.status!=='closed');
+
+  const content = `
+  <div class="p-6 lg:p-10 max-w-5xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <div class="mb-10">
+      <p class="text-xs tracking-widest uppercase text-champagne/70 mb-3">Family Portal</p>
+      <h1 class="font-serif text-4xl text-obsidian-900 mb-2">Good ${getHour()}</h1>
+      ${fp?`<p class="text-obsidian-400 text-sm">Family Reference: <span class="font-medium text-obsidian-600">${esc(fp.familyCode)}</span></p>`:''}
+    </div>
+
+    ${shortlisted.length>0?`
+    <div class="mb-8 p-5 rounded-sm border border-champagne/30 bg-champagne/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="flex items-start gap-3">
+        <span class="text-champagne mt-0.5 flex-shrink-0">${ICONS.star}</span>
+        <div>
+          <p class="text-sm font-semibold text-obsidian-800">Your shortlist is ready</p>
+          <p class="text-xs text-obsidian-400 mt-0.5">Agripina has curated ${shortlisted.length} shortlist${shortlisted.length>1?'s':''} for your review.</p>
+        </div>
+      </div>
+      ${goldBtn(`View Shortlist ${ICONS.chevron_right}`,"navigate('fam-shortlist')",'primary','sm')}
+    </div>`:''}
+
+    ${interviews.length>0?`
+    <div class="mb-8 p-5 rounded-sm border border-emerald-200 bg-emerald-50 flex items-start gap-3">
+      <span class="text-emerald-600 mt-0.5 flex-shrink-0">${ICONS.calendar}</span>
+      <div><p class="text-sm font-semibold text-emerald-800">Interview scheduled</p><p class="text-xs text-emerald-600 mt-0.5">You have ${interviews.length} upcoming interview${interviews.length>1?'s':''} to prepare for.</p></div>
+    </div>`:''}
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+      ${[
+        {l:'Active Requests',v:active.length,i:ICONS.file},
+        {l:'Shortlisted',v:shortlisted.length,i:ICONS.star},
+        {l:'Interviews',v:interviews.length,i:ICONS.calendar},
+        {l:'Total Requests',v:requests.length,i:ICONS.clock},
+      ].map(s=>`
+      <div class="bg-white rounded-sm border border-ivory-200 p-4 hover:shadow-card transition-all">
+        <div class="flex items-center gap-2 text-champagne mb-2">${s.i}</div>
+        <p class="font-serif text-2xl text-obsidian-900">${s.v}</p>
+        <p class="text-xs text-obsidian-400 mt-0.5">${s.l}</p>
+      </div>`).join('')}
+    </div>
+
+    <div class="flex flex-wrap gap-3 mb-10">
+      ${goldBtn(`${ICONS.file} New Care Request`,"navigate('fam-new-request')")}
+      ${goldBtn(`${ICONS.star} View Shortlist`,"navigate('fam-shortlist')",'secondary')}
+    </div>
+
+    <div>
+      <h2 class="font-serif text-2xl text-obsidian-800 mb-5">Your Requests</h2>
+      ${requests.length===0?emptyState(ICONS.file,'No requests yet','Submit your first care request and our concierge will begin the matching process within 24 hours.',goldBtn('Submit Care Request',"navigate('fam-new-request')")):
+      `<div class="space-y-3">
+        ${requests.map(req=>`
+        <div class="bg-white rounded-sm border border-ivory-200 p-5 hover:border-champagne/25 hover:shadow-card hover:-translate-y-px transition-all duration-200">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-3 mb-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium border ${statusBadgeClass(req.status)}">${statusLabel(req.status)}</span>
+              </div>
+              <p class="font-medium text-obsidian-800 text-sm">${esc(req.type)}</p>
+              <p class="text-xs text-obsidian-400 mt-1">Submitted ${req.statusLog[0]?.date||'—'} · Start: ${fmt(req.startDate)}</p>
+            </div>
+            <div class="flex items-center gap-3">
+              ${req.status==='shortlisted'?goldBtn('View Matches',"navigate('fam-shortlist')",'primary','sm'):''}
+              ${req.status==='interview_scheduled'?goldBtn('View Interview',"navigate('fam-schedule',{requestId:'"+req.id+"'})",'secondary','sm'):''}
+            </div>
+          </div>
+          ${req.notes?`<p class="mt-3 text-xs text-obsidian-400 line-clamp-2 border-t border-ivory-100 pt-3">${esc(req.notes)}</p>`:''}
+        </div>`).join('')}
+      </div>`}
+    </div>
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── FAMILY NEW REQUEST ── */
+function renderFamNewRequest(){
+  if(STATE.newRequestSubmitted){
+    const content = `
+    <div class="p-6 lg:p-10 max-w-2xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+      <div class="text-center py-20">
+        <div class="w-20 h-20 rounded-full bg-champagne/10 flex items-center justify-center mx-auto mb-6 text-champagne">${ICONS.check}</div>
+        <h1 class="font-serif text-3xl text-obsidian-900 mb-4">Request Received</h1>
+        <p class="text-obsidian-400 text-sm leading-relaxed max-w-sm mx-auto mb-8">Your care request has been submitted. Agripina will review your requirements within 24 hours and begin the discreet matching process.</p>
+        ${goldBtn('Return to Dashboard',"navigate('fam-dashboard')")}
+      </div>
+    </div>`;
+    return renderShell(content);
+  }
+
+  const step = STATE.newRequestStep||1;
+  const f = STATE.newRequestForm;
+  const careTypes=['Newborn Care Specialist','Travel Nanny','Rotational Nanny','Household Manager','Night Nurse'];
+  const careTypeDescs={
+    'Newborn Care Specialist':'Expert care for babies 0–4 months, including feeding, sleep, and settling.',
+    'Travel Nanny':'A seasoned nanny comfortable with private aviation, hotels, and multi-country itineraries.',
+    'Rotational Nanny':'A two-nanny system providing round-the-clock, consistent care.',
+    'Household Manager':'Senior household management with integrated family management responsibilities.',
+    'Night Nurse':'Overnight specialist care, typically 10pm–7am, allowing parents to rest.',
+  };
+  const allLangs=['English','French','Spanish','Italian','German','Arabic','Mandarin','Russian'];
+  const steps=[{id:1,l:'Care Type'},{id:2,l:'Children'},{id:3,l:'Schedule'},{id:4,l:'Requirements'},{id:5,l:'Review'}];
+
+  const canProceed = step===1?(!!f.type):step===2?(f.children.every(c=>c.age.trim())):step===3?(!!f.startDate&&!!f.duration):true;
+
+  let stepContent='';
+  if(step===1){
+    stepContent=`
+    <div>
+      <h2 class="font-serif text-xl text-obsidian-800 mb-6">What type of care do you require?</h2>
+      <div class="space-y-3">
+        ${careTypes.map(t=>`
+        <label class="flex items-start gap-4 p-4 rounded-sm border cursor-pointer transition-all ${f.type===t?'border-champagne/40 bg-champagne/5':'border-ivory-200 hover:border-champagne/20'}">
+          <input type="radio" name="ct" value="${t}" ${f.type===t?'checked':''} onchange="STATE.newRequestForm.type=this.value;render()" class="mt-0.5 accent-champagne"/>
+          <div><p class="text-sm font-semibold text-obsidian-800">${t}</p><p class="text-xs text-obsidian-400 mt-0.5 leading-relaxed">${careTypeDescs[t]||''}</p></div>
+        </label>`).join('')}
+      </div>
+    </div>`;
+  } else if(step===2){
+    stepContent=`
+    <div>
+      <h2 class="font-serif text-xl text-obsidian-800 mb-6">Tell us about your children</h2>
+      <div class="space-y-5">
+        ${f.children.map((c,i)=>`
+        <div class="p-5 bg-parchment rounded-sm border border-ivory-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <p class="text-xs font-medium text-obsidian-500 uppercase tracking-wider">Child ${i+1}</p>
+            ${f.children.length>1?`<button onclick="removeChild(${i})" class="text-obsidian-300 hover:text-red-500 transition-colors">${ICONS.trash}</button>`:''}
+          </div>
+          <div><label class="block text-xs text-obsidian-400 mb-1.5">Age / Date of Birth</label><input type="text" value="${esc(c.age)}" oninput="STATE.newRequestForm.children[${i}].age=this.value" class="w-full px-3 py-2.5 bg-white border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne" placeholder="e.g., Newborn, 3 months, 2 years"/></div>
+          <div><label class="block text-xs text-obsidian-400 mb-1.5">Known Allergies</label><input type="text" value="${esc(c.allergies)}" oninput="STATE.newRequestForm.children[${i}].allergies=this.value" class="w-full px-3 py-2.5 bg-white border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne" placeholder="None, or list specific allergies"/></div>
+          <div><label class="block text-xs text-obsidian-400 mb-1.5">Medical Notes (optional)</label><textarea rows="2" oninput="STATE.newRequestForm.children[${i}].medicalNotes=this.value" class="w-full px-3 py-2.5 bg-white border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne resize-none" placeholder="Any conditions, medications...">${esc(c.medicalNotes)}</textarea></div>
+        </div>`).join('')}
+        <button type="button" onclick="addChild()" class="flex items-center gap-2 text-sm text-champagne hover:text-gold-600 transition-colors">${ICONS.plus} Add another child</button>
+      </div>
+    </div>`;
+  } else if(step===3){
+    stepContent=`
+    <div>
+      <h2 class="font-serif text-xl text-obsidian-800 mb-6">Schedule & Arrangement</h2>
+      <div class="space-y-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div><label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Start Date</label><input type="date" value="${esc(f.startDate)}" onchange="STATE.newRequestForm.startDate=this.value" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne"/></div>
+          <div><label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Duration</label><input type="text" value="${esc(f.duration)}" oninput="STATE.newRequestForm.duration=this.value" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne" placeholder="e.g., 3 months, 1 year, Permanent"/></div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          ${[{l:'Live-in Position',f:'liveIn',d:'The caregiver resides at the property'},{l:'Travel Required',f:'travelRequired',d:'Caregiver will travel with the family'}].map(t=>`
+          <label class="flex items-start gap-3 p-4 rounded-sm border cursor-pointer transition-all ${f[t.f]?'border-champagne/40 bg-champagne/5':'border-ivory-200'}">
+            <input type="checkbox" ${f[t.f]?'checked':''} onchange="STATE.newRequestForm.${t.f}=this.checked" class="mt-0.5 accent-champagne"/>
+            <div><p class="text-sm font-medium text-obsidian-800">${t.l}</p><p class="text-xs text-obsidian-400 mt-0.5">${t.d}</p></div>
+          </label>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  } else if(step===4){
+    stepContent=`
+    <div>
+      <h2 class="font-serif text-xl text-obsidian-800 mb-6">Specific Requirements</h2>
+      <div class="space-y-6">
+        <div>
+          <label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-3">Languages Required</label>
+          <div class="flex flex-wrap gap-2">
+            ${allLangs.map(l=>`<button type="button" onclick="toggleReqLang('${l}')" class="px-3 py-1.5 rounded-sm text-xs font-medium border transition-all ${(f.languages||[]).includes(l)?'bg-champagne/15 border-champagne/40 text-gold-700':'bg-ivory-50 border-ivory-300 text-obsidian-600 hover:border-champagne/30'}">${l}</button>`).join('')}
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          ${[{l:"Driver's License Required",f:'driverLicense'},{l:'Cooking Skills Required',f:'cooking'}].map(t=>`
+          <label class="flex items-center gap-3 p-4 rounded-sm border cursor-pointer transition-all ${f[t.f]?'border-champagne/40 bg-champagne/5':'border-ivory-200'}">
+            <input type="checkbox" ${f[t.f]?'checked':''} onchange="STATE.newRequestForm.${t.f}=this.checked" class="accent-champagne"/>
+            <p class="text-sm font-medium text-obsidian-800">${t.l}</p>
+          </label>`).join('')}
+        </div>
+        <div><label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Budget Range <span class="text-obsidian-300 normal-case font-normal">(Optional — discreet)</span></label><input type="text" value="${esc(f.budget||'')}" oninput="STATE.newRequestForm.budget=this.value" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne" placeholder="e.g., Premium, or specific range"/></div>
+        <div><label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-2">Additional Notes</label><textarea rows="5" oninput="STATE.newRequestForm.notes=this.value" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne resize-none leading-relaxed" placeholder="Share any details about your household culture, privacy expectations, or specific needs...">${esc(f.notes||'')}</textarea></div>
+      </div>
+    </div>`;
+  } else if(step===5){
+    stepContent=`
+    <div>
+      <h2 class="font-serif text-xl text-obsidian-800 mb-6">Review Your Request</h2>
+      <div class="space-y-4">
+        ${[
+          ['Care Type',f.type||'—'],
+          ['Children',`${f.children.length} child${f.children.length!==1?'ren':''}`],
+          ['Start Date',fmt(f.startDate)],
+          ['Duration',f.duration||'—'],
+          ['Live-in',f.liveIn?'Yes':'No'],
+          ['Travel Required',f.travelRequired?'Yes':'No'],
+          ['Languages',(f.languages||[]).length>0?f.languages.join(', '):'No preference'],
+          ['Budget Range',f.budget||'Not specified'],
+        ].map(([l,v])=>`
+        <div class="flex items-start justify-between py-3 border-b border-ivory-100">
+          <span class="text-xs text-obsidian-400 uppercase tracking-wider">${l}</span>
+          <span class="text-sm font-medium text-obsidian-800 text-right max-w-xs">${esc(String(v))}</span>
+        </div>`).join('')}
+        ${f.notes?`<div class="pt-2"><p class="text-xs text-obsidian-400 uppercase tracking-wider mb-2">Notes</p><p class="text-sm text-obsidian-600 leading-relaxed">${esc(f.notes)}</p></div>`:''}
+      </div>
+      <div class="mt-6 p-4 bg-parchment rounded-sm border border-ivory-200">
+        <p class="text-xs text-obsidian-500 leading-relaxed">By submitting this request, you confirm the information is accurate and authorise La Maison de BéBé to begin the confidential matching process.</p>
+      </div>
+    </div>`;
+  }
+
+  const content = `
+  <div class="p-6 lg:p-10 max-w-3xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <div class="mb-8">
+      <p class="text-xs tracking-widest uppercase text-champagne/70 mb-3">New Request</p>
+      <h1 class="font-serif text-3xl text-obsidian-900 mb-2">Care Request</h1>
+      <p class="text-sm text-obsidian-400">A guided, confidential brief for our concierge matching process.</p>
+    </div>
+
+    <!-- Step indicators -->
+    <div class="flex items-center gap-0 mb-10 overflow-x-auto pb-2">
+      ${steps.map((s,i)=>`
+      <div class="flex items-center">
+        <div class="flex items-center gap-2 px-2 py-2 rounded-sm text-xs font-medium whitespace-nowrap ${step===s.id?'text-champagne':step>s.id?'text-emerald-600':'text-obsidian-300'}">
+          <div class="w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${step===s.id?'bg-champagne/15 border border-champagne/40 text-champagne':step>s.id?'bg-emerald-100 border border-emerald-300 text-emerald-700':'bg-ivory-100 border border-ivory-300 text-obsidian-400'}">
+            ${step>s.id?ICONS.check:s.id}
+          </div>
+          <span class="hidden sm:block">${s.l}</span>
+        </div>
+        ${i<steps.length-1?`<div class="w-5 h-px ${step>s.id?'bg-emerald-300':'bg-ivory-300'}"></div>`:''}
+      </div>`).join('')}
+    </div>
+
+    <div class="bg-white rounded-sm border border-ivory-200 p-6 lg:p-8 mb-6">${stepContent}</div>
+
+    <div class="flex items-center justify-between">
+      ${goldBtn(`${ICONS.chevron_left} Back`,'prevStep()','ghost','md',step===1?'opacity-0 pointer-events-none':'')}
+      ${step<5?goldBtn(`Continue ${ICONS.chevron_right}`,'nextStep()','primary','md',!canProceed?'opacity-50 pointer-events-none':''):goldBtn('Submit Request','submitNewRequest()')}
+    </div>
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── FAMILY SHORTLIST ── */
+function renderFamShortlist(){
+  const u = STATE.currentUser;
+  const fp = getFamilyByUserId(u.id);
+  const requests = fp ? getRequestsByFamilyId(fp.id) : [];
+  const shortlistedReq = requests.find(r=>r.status==='shortlisted');
+  const sl = shortlistedReq ? getShortlistByRequestId(shortlistedReq.id) : null;
+  const caregivers = sl ? sl.caregiverIds.map(id=>getCaregiverById(id)).filter(Boolean) : [];
+
+  if(!shortlistedReq||caregivers.length===0){
+    return renderShell(`<div class="p-6 lg:p-10 max-w-4xl mx-auto">
+      <div class="mb-8"><h1 class="font-serif text-3xl text-obsidian-900 mb-2">Your Shortlist</h1><p class="text-sm text-obsidian-400">Candidates curated personally by Agripina for your family.</p></div>
+      ${emptyState(ICONS.star,'Your shortlist is being prepared','Agripina is carefully reviewing your requirements and curating the perfect candidates. You will be notified when your shortlist is ready.')}
+    </div>`);
+  }
+
+  const content = `
+  <div class="p-6 lg:p-10 max-w-6xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div>
+        <p class="text-xs tracking-widest uppercase text-champagne/70 mb-3">Curated For You</p>
+        <h1 class="font-serif text-3xl text-obsidian-900 mb-2">Your Shortlist</h1>
+        <p class="text-sm text-obsidian-400 max-w-lg">Agripina has personally selected these ${caregivers.length} candidates from our exclusive register. Each has been evaluated against your specific requirements.</p>
+      </div>
+      <button onclick="openRequestMoreModal()" class="flex items-center gap-2 text-xs text-obsidian-400 hover:text-champagne transition-colors border border-ivory-300 hover:border-champagne/30 px-3 py-2 rounded-sm whitespace-nowrap">
+        ${ICONS.more} Request More Options
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      ${caregivers.map((cg,idx)=>`
+      <div class="bg-white rounded-sm border overflow-hidden group hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 ${idx===1?'border-champagne/30':'border-ivory-200'}">
+        ${idx===1?'<div class="h-0.5 bg-gradient-to-r from-transparent via-champagne to-transparent"></div>':''}
+        <div class="relative h-52 overflow-hidden bg-obsidian-100">
+          <img src="${esc(cg.photo)}" alt="${esc(cg.firstName)}" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-obsidian-900/60 to-transparent"></div>
+          <div class="absolute bottom-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-sm bg-white/15 backdrop-blur-sm border border-white/20">
+            <div class="w-1.5 h-1.5 rounded-full ${cg.availabilityType==='immediate'?'bg-emerald-400':'bg-amber-400'}"></div>
+            <span class="text-xs text-white font-medium">${cg.availabilityType==='immediate'?'Available':'Available Soon'}</span>
+          </div>
+          ${idx===1?'<div class="absolute top-3 right-3 px-2.5 py-1 bg-champagne text-charcoal text-xs font-semibold rounded-sm">Top Match</div>':''}
+        </div>
+        <div class="p-5">
+          <h2 class="font-serif text-xl text-obsidian-900 mb-1">${esc(cg.firstName)} ${esc(cg.lastName)}</h2>
+          <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-obsidian-400 mb-4">
+            <span class="flex items-center gap-1">${ICONS.map_pin} ${esc(cg.location)}</span>
+            <span class="flex items-center gap-1">${ICONS.clock} ${cg.yearsOfExperience} yrs</span>
+            <span class="flex items-center gap-1">${ICONS.globe} ${esc(cg.languages.slice(0,2).join(', '))}${cg.languages.length>2?` +${cg.languages.length-2}`:''}</span>
+          </div>
+          <p class="text-xs text-obsidian-500 leading-relaxed mb-4 line-clamp-3">${esc(cg.bio)}</p>
+          <div class="flex flex-wrap gap-1.5 mb-5">
+            ${cg.skills.slice(0,3).map(s=>skillChip(s,true)).join('')}
+            ${cg.skills.length>3?`<span class="text-xs text-obsidian-400 py-1">+${cg.skills.length-3}</span>`:''}
+          </div>
+          <div class="space-y-2">
+            ${cg.videoUrl?`<button onclick="openVideoModal('${esc(cg.videoUrl)}','Introduction — ${esc(cg.firstName)} ${esc(cg.lastName)}')" class="w-full flex items-center gap-2 px-3 py-2 border border-ivory-200 rounded-sm text-xs text-obsidian-600 hover:border-champagne/30 hover:text-champagne transition-all">
+              <span class="text-champagne">${ICONS.play}</span> Watch Introduction
+            </button>`:''}
+            ${goldBtn(`${ICONS.calendar} Select & Schedule Interview`,"navigate('fam-schedule',{caregiverId:'"+cg.id+"',requestId:'"+shortlistedReq.id+"'})",'primary','sm','w-full')}
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── FAMILY SCHEDULE INTERVIEW ── */
+function renderFamSchedule(){
+  const params = STATE.routeParams||{};
+  const caregiverId = params.caregiverId||STATE.scheduleTargetCaregiverId||'';
+  const requestId = params.requestId||STATE.scheduleTargetRequestId||'';
+  if(params.caregiverId) STATE.scheduleTargetCaregiverId = params.caregiverId;
+  if(params.requestId) STATE.scheduleTargetRequestId = params.requestId;
+
+  const cg = getCaregiverById(caregiverId);
+  const existingInterview = getInterviewByRequestId(requestId);
+
+  if(!cg){
+    return renderShell(`<div class="p-10 text-center text-obsidian-400">Caregiver not found.</div>`);
+  }
+
+  const timeSlots=['09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30'];
+  const today = new Date(); today.setDate(today.getDate()+1);
+  const minDate = today.toISOString().split('T')[0];
+
+  if(STATE.scheduleSubmitted||existingInterview){
+    const iv = existingInterview||STATE.interviews[STATE.interviews.length-1];
+    const content = `
+    <div class="p-6 lg:p-10 max-w-2xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+      <div class="bg-white rounded-sm border border-emerald-200 p-8 text-center">
+        <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-6 text-emerald-600">${ICONS.check}</div>
+        <p class="text-xs tracking-widest uppercase text-champagne/70 mb-3">Confirmed</p>
+        <h1 class="font-serif text-3xl text-obsidian-900 mb-6">Interview Scheduled</h1>
+        <div class="space-y-4 mb-8 text-left">
+          <div class="flex items-center gap-4 p-4 bg-parchment rounded-sm">
+            <img src="${esc(cg.photo)}" alt="${esc(cg.firstName)}" class="w-12 h-12 rounded-full object-cover border-2 border-white"/>
+            <div><p class="font-medium text-obsidian-800">${esc(cg.firstName)} ${esc(cg.lastName)}</p><p class="text-xs text-obsidian-400">${esc(cg.location)}</p></div>
+          </div>
+          <div class="flex items-center gap-3 px-4 py-3 border-b border-ivory-100">
+            <span class="text-champagne">${ICONS.calendar}</span>
+            <div><p class="text-xs text-obsidian-400">Date &amp; Time</p><p class="text-sm font-medium text-obsidian-800">${iv?fmtDT(iv.scheduledTime):fmt(STATE.scheduleDate)+' at '+STATE.scheduleTime}</p></div>
+          </div>
+          <div class="px-4 py-3 bg-parchment rounded-sm">
+            <p class="text-xs text-obsidian-500 leading-relaxed">Agripina will coordinate the connection details and confirm the meeting shortly.</p>
+          </div>
+        </div>
+        <div class="flex flex-col gap-3">
+          ${goldBtn('Return to Dashboard',"navigate('fam-dashboard')")}
+          ${goldBtn('Reschedule','resetSchedule()','ghost')}
+        </div>
+      </div>
+    </div>`;
+    return renderShell(content);
+  }
+
+  const content = `
+  <div class="p-6 lg:p-10 max-w-3xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <button onclick="navigate('fam-shortlist')" class="flex items-center gap-2 text-sm text-obsidian-400 hover:text-obsidian-700 mb-6 transition-colors">
+      ${ICONS.chevron_left} Back to Shortlist
+    </button>
+    <div class="mb-8">
+      <p class="text-xs tracking-widest uppercase text-champagne/70 mb-3">Schedule Interview</p>
+      <h1 class="font-serif text-3xl text-obsidian-900 mb-2">Book a Meeting</h1>
+      <p class="text-sm text-obsidian-400">Select a time to connect with this candidate.</p>
+    </div>
+
+    <div class="bg-white rounded-sm border border-ivory-200 p-5 mb-6 flex items-center gap-4">
+      <img src="${esc(cg.photo)}" alt="${esc(cg.firstName)}" class="w-14 h-14 rounded-full object-cover"/>
+      <div>
+        <h2 class="font-serif text-lg text-obsidian-900">${esc(cg.firstName)} ${esc(cg.lastName)}</h2>
+        <p class="text-xs text-obsidian-400">${esc(cg.location)} · ${cg.yearsOfExperience} years experience</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div class="bg-white rounded-sm border border-ivory-200 p-6">
+        <h3 class="text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <span class="text-champagne">${ICONS.calendar}</span> Select Date
+        </h3>
+        <input type="date" min="${minDate}" value="${esc(STATE.scheduleDate||'')}" onchange="STATE.scheduleDate=this.value;render()" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne"/>
+      </div>
+      <div class="bg-white rounded-sm border border-ivory-200 p-6">
+        <h3 class="text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <span class="text-champagne">${ICONS.clock}</span> Select Time
+        </h3>
+        <div class="grid grid-cols-4 gap-2">
+          ${timeSlots.map(t=>`<button type="button" onclick="STATE.scheduleTime='${t}';render()" class="py-2 text-xs font-medium rounded-sm border transition-all ${STATE.scheduleTime===t?'bg-champagne/15 border-champagne/40 text-gold-700':'border-ivory-200 text-obsidian-500 hover:border-champagne/25'}">${t}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-sm border border-ivory-200 p-6 mb-6">
+      <label class="block text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-3">Brief Message (Optional)</label>
+      <textarea rows="3" oninput="STATE.scheduleMessage=this.value" class="w-full px-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne resize-none" placeholder="Share any details or questions you'd like to address...">${esc(STATE.scheduleMessage||'')}</textarea>
+    </div>
+
+    ${STATE.scheduleDate&&STATE.scheduleTime?`
+    <div class="mb-6 p-4 bg-champagne/5 border border-champagne/20 rounded-sm flex items-start gap-3">
+      <span class="text-champagne mt-0.5 flex-shrink-0">${ICONS.alert}</span>
+      <p class="text-xs text-obsidian-600">Interview confirmed for <strong>${fmt(STATE.scheduleDate)}</strong> at <strong>${STATE.scheduleTime}</strong> with ${esc(cg.firstName)}. Agripina will coordinate and send connection details.</p>
+    </div>`:''}
+
+    ${goldBtn(`${ICONS.calendar} Confirm Interview`,'submitSchedule()','primary','lg','w-full'+((!STATE.scheduleDate||!STATE.scheduleTime)?' opacity-50 pointer-events-none':''))}
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── ADMIN DASHBOARD ── */
+function renderAdminDashboard(){
+  const newReqs = STATE.careRequests.filter(r=>r.status==='new');
+  const activeReqs = STATE.careRequests.filter(r=>r.status!=='closed');
+  const pendingInterviews = STATE.interviews.filter(i=>i.status==='pending'||i.status==='confirmed');
+
+  const content = `
+  <div class="p-6 lg:p-8 max-w-6xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <div class="mb-10">
+      <p class="text-xs tracking-widest uppercase text-champagne/70 mb-3">Command Centre</p>
+      <h1 class="font-serif text-4xl text-obsidian-900 mb-2">Concierge Suite</h1>
+      <p class="text-sm text-obsidian-400">Welcome, Agripina. ${newReqs.length>0?`${newReqs.length} new request${newReqs.length>1?'s':''} awaiting review.`:'All requests are up to date.'}</p>
+    </div>
+
+    ${newReqs.length>0?`
+    <div class="mb-6 p-4 bg-champagne/8 border border-champagne/25 rounded-sm flex items-center justify-between">
+      <p class="text-sm text-obsidian-700"><span class="font-semibold">${newReqs.length} new request${newReqs.length>1?'s':''}</span> — Begin the matching process.</p>
+      <button onclick="navigate('admin-requests')" class="text-xs text-champagne hover:underline flex items-center gap-1">View ${ICONS.chevron_right}</button>
+    </div>`:''}
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+      ${[
+        {l:'Caregivers',v:STATE.caregiverProfiles.length,i:ICONS.users,r:'admin-caregivers',s:'In register'},
+        {l:'Active Requests',v:activeReqs.length,i:ICONS.list,r:'admin-requests',s:'Needs attention'},
+        {l:'Matches Made',v:STATE.shortlists.length,i:ICONS.git,r:'admin-matches',s:'Total shortlists'},
+        {l:'Interviews',v:STATE.interviews.length,i:ICONS.calendar,r:'admin-matches',s:`${pendingInterviews.length} upcoming`},
+      ].map(s=>`
+      <button onclick="navigate('${s.r}')" class="bg-white rounded-sm border border-ivory-200 p-5 hover:border-champagne/30 hover:shadow-card-hover hover:-translate-y-px transition-all duration-200 text-left group">
+        <div class="text-champagne mb-3 group-hover:scale-110 transition-transform">${s.i}</div>
+        <p class="font-serif text-3xl text-obsidian-900 mb-0.5">${s.v}</p>
+        <p class="text-xs text-obsidian-400 uppercase tracking-wide">${s.l}</p>
+        <p class="text-xs text-obsidian-300 mt-1">${s.s}</p>
+      </button>`).join('')}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-serif text-xl text-obsidian-800">Recent Requests</h2>
+          <button onclick="navigate('admin-requests')" class="text-xs text-champagne hover:underline">View All</button>
+        </div>
+        <div class="space-y-3">
+          ${STATE.careRequests.slice(0,4).map(req=>{
+            const fam = STATE.familyProfiles.find(f=>f.id===req.familyId);
+            return `
+            <button onclick="navigate('admin-match',{requestId:'${req.id}'})" class="group block w-full bg-white rounded-sm border border-ivory-200 p-4 hover:border-champagne/25 hover:shadow-card hover:-translate-y-px transition-all duration-200 text-left">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="flex items-center gap-2 mb-1"><span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium border ${statusBadgeClass(req.status)}">${statusLabel(req.status)}</span></div>
+                  <p class="text-sm font-medium text-obsidian-800">${esc(req.type)}</p>
+                  <p class="text-xs text-obsidian-400 mt-0.5">Family ${esc(fam?.familyCode||req.familyId.slice(-8).toUpperCase())} · ${req.children.length} child${req.children.length!==1?'ren':''}</p>
+                </div>
+                <span class="text-obsidian-300 group-hover:text-champagne transition-colors mt-1 flex-shrink-0">${ICONS.chevron_right}</span>
+              </div>
+            </button>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-serif text-xl text-obsidian-800">Activity Log</h2>
+        </div>
+        <div class="bg-white rounded-sm border border-ivory-200 overflow-hidden">
+          ${STATE.interviews.slice(0,4).map((iv,i)=>{
+            const cg = getCaregiverById(iv.caregiverId);
+            return `<div class="p-4 ${i>0?'border-t border-ivory-100':''}">
+              <div class="flex items-start gap-3">
+                <div class="w-1.5 h-1.5 rounded-full bg-champagne mt-2 flex-shrink-0"></div>
+                <div><p class="text-sm text-obsidian-700">Interview scheduled with <span class="font-medium">${esc(cg?.firstName||'')} ${esc(cg?.lastName||'')}</span></p><p class="text-xs text-obsidian-400 mt-0.5">${esc(iv.displayTime||fmtDT(iv.scheduledTime))}</p></div>
+              </div>
+            </div>`;
+          }).join('')}
+          ${STATE.actionLogs.slice(0,3).map((log,i)=>`
+          <div class="p-4 border-t border-ivory-100">
+            <div class="flex items-start gap-3">
+              <div class="w-1.5 h-1.5 rounded-full bg-obsidian-200 mt-2 flex-shrink-0"></div>
+              <div><p class="text-sm text-obsidian-700">${esc(log.action)}</p><p class="text-xs text-obsidian-400 mt-0.5">${fmtDT(log.timestamp)}</p></div>
+            </div>
+          </div>`).join('')}
+          ${STATE.interviews.length===0&&STATE.actionLogs.length===0?`<div class="p-8 text-center text-xs text-obsidian-400">No activity recorded yet.</div>`:''}
+        </div>
+      </div>
+    </div>
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── ADMIN CAREGIVERS ── */
+function renderAdminCaregivers(){
+  const search = STATE.adminCGSearch||'';
+  const skillFilter = STATE.adminSkillFilter||[];
+  const availFilter = STATE.adminAvailFilter||'all';
+
+  const filtered = STATE.caregiverProfiles.filter(p=>{
+    const name = `${p.firstName} ${p.lastName}`.toLowerCase();
+    const ms = !search||name.includes(search.toLowerCase())||p.location.toLowerCase().includes(search.toLowerCase());
+    const msk = skillFilter.length===0||skillFilter.every(s=>p.skills.includes(s));
+    const ma = availFilter==='all'||p.availabilityType===availFilter;
+    return ms&&msk&&ma;
+  });
+
+  const filterSkills=['Newborn Care','Sleep Training','Travel Ready','Special Needs','CPR Certified','Multilingual'];
+
+  const content = `
+  <div class="p-6 lg:p-8 max-w-6xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <div class="mb-8">
+      <p class="text-xs tracking-widest uppercase text-champagne/70 mb-3">The Register</p>
+      <h1 class="font-serif text-3xl text-obsidian-900 mb-2">Caregiver Database</h1>
+      <p class="text-sm text-obsidian-400">${STATE.caregiverProfiles.length} care professionals in the exclusive register.</p>
+    </div>
+
+    <div class="bg-white rounded-sm border border-ivory-200 p-5 mb-6 space-y-4">
+      <div class="relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-obsidian-300">${ICONS.search}</span>
+        <input type="text" value="${esc(search)}" oninput="STATE.adminCGSearch=this.value;render()" placeholder="Search by name or location…" class="w-full pl-10 pr-4 py-3 bg-parchment border border-ivory-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne"/>
+      </div>
+      <div class="flex flex-wrap gap-2 items-center">
+        <span class="text-xs text-obsidian-400 flex items-center gap-1 mr-1">${ICONS.filter} Skills:</span>
+        ${filterSkills.map(s=>`<button onclick="toggleAdminSkillFilter('${s}')" class="px-3 py-1.5 rounded-sm text-xs font-medium border transition-all ${(STATE.adminSkillFilter||[]).includes(s)?'bg-champagne/15 border-champagne/40 text-gold-700':'bg-ivory-50 border-ivory-300 text-obsidian-600 hover:border-champagne/30'}">${s}</button>`).join('')}
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-obsidian-400">Availability:</span>
+          ${['all','immediate','date_range'].map(opt=>`<button onclick="STATE.adminAvailFilter='${opt}';render()" class="px-3 py-1.5 rounded-sm text-xs border transition-all ${(STATE.adminAvailFilter||'all')===opt?'bg-champagne/15 border-champagne/40 text-gold-700':'border-ivory-200 text-obsidian-400 hover:border-champagne/20'}">${opt==='all'?'All':opt==='immediate'?'Immediate':'Scheduled'}</button>`).join('')}
+        </div>
+        ${search||skillFilter.length>0||availFilter!=='all'?`<button onclick="clearAdminFilters()" class="text-xs text-champagne hover:underline">Clear all</button>`:''}
+      </div>
+    </div>
+
+    ${filtered.length===0?emptyState(ICONS.search,'No caregivers found','Try adjusting your filters or search terms.'):
+    `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      ${filtered.map(cg=>`
+      <button onclick="navigate('admin-cg-detail',{id:'${cg.id}'})" class="group bg-white rounded-sm border border-ivory-200 overflow-hidden hover:border-champagne/25 hover:shadow-card-hover hover:-translate-y-1 transition-all duration-200 text-left">
+        <div class="relative h-36 overflow-hidden bg-obsidian-100">
+          <img src="${esc(cg.photo)}" alt="${esc(cg.firstName)}" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" loading="lazy"/>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+          <div class="absolute bottom-2 left-3 flex items-center gap-1.5">
+            <div class="w-1.5 h-1.5 rounded-full ${cg.availabilityType==='immediate'?'bg-emerald-400':'bg-amber-400'}"></div>
+            <span class="text-xs text-white">${cg.availabilityType==='immediate'?'Available':'Scheduled'}</span>
+          </div>
+        </div>
+        <div class="p-4">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <h3 class="font-medium text-obsidian-900 text-sm">${esc(cg.firstName)} ${esc(cg.lastName)}</h3>
+              <p class="text-xs text-obsidian-400 flex items-center gap-1 mt-0.5">${ICONS.map_pin} ${esc(cg.location)}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-champagne font-medium">${cg.yearsOfExperience}y</p>
+              <p class="text-xs text-obsidian-400">${cg.profileCompletion}%</p>
+            </div>
+          </div>
+          <p class="text-xs text-obsidian-400 flex items-center gap-1 mb-3">${ICONS.globe} ${esc(cg.languages.slice(0,2).join(', '))}${cg.languages.length>2?` +${cg.languages.length-2}`:''}</p>
+          <div class="flex flex-wrap gap-1 mb-3">${cg.skills.slice(0,2).map(s=>`<span class="px-2 py-0.5 text-xs bg-champagne/8 text-gold-700 rounded-sm border border-champagne/20">${esc(s)}</span>`).join('')}${cg.skills.length>2?`<span class="text-xs text-obsidian-300 py-0.5">+${cg.skills.length-2}</span>`:''}</div>
+          <div class="flex items-center justify-between text-xs text-obsidian-400">
+            <span>${cg.certifications.length} cert${cg.certifications.length!==1?'s':''}</span>
+            <span class="text-champagne">${ICONS.chevron_right}</span>
+          </div>
+        </div>
+      </button>`).join('')}
+    </div>`}
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── ADMIN CAREGIVER DETAIL ── */
+function renderAdminCGDetail(){
+  const id = (STATE.routeParams||{}).id||STATE.adminCGDetailId||'';
+  if(id) STATE.adminCGDetailId = id;
+  const cg = getCaregiverById(id||STATE.adminCGDetailId);
+  if(!cg) return renderShell(`<div class="p-10 text-center text-obsidian-400">Caregiver not found.</div>`);
+
+  const content = `
+  <div class="p-6 lg:p-8 max-w-4xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <button onclick="navigate('admin-caregivers')" class="flex items-center gap-2 text-sm text-obsidian-400 hover:text-obsidian-700 mb-6 transition-colors">${ICONS.chevron_left} Back to Database</button>
+
+    <div class="bg-white rounded-sm border border-ivory-200 overflow-hidden mb-6">
+      <div class="relative h-28 bg-gradient-to-r from-obsidian-900 to-obsidian-800">
+        <div class="absolute inset-0 opacity-20" style="background:radial-gradient(circle at 20% 50%, rgba(201,169,110,0.4), transparent 60%)"></div>
+      </div>
+      <div class="px-6 sm:px-8 pb-8">
+        <div class="flex flex-col sm:flex-row sm:items-end gap-5 -mt-12 mb-6">
+          <img src="${esc(cg.photo)}" alt="${esc(cg.firstName)}" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-luxury-sm"/>
+          <div class="flex-1">
+            <h1 class="font-serif text-3xl text-obsidian-900">${esc(cg.firstName)} ${esc(cg.lastName)}</h1>
+            <div class="flex flex-wrap items-center gap-4 mt-2 text-sm text-obsidian-400">
+              <span class="flex items-center gap-1.5">${ICONS.map_pin} ${esc(cg.location)}</span>
+              <span class="flex items-center gap-1.5">${ICONS.clock} ${cg.yearsOfExperience} years</span>
+              <span class="flex items-center gap-1.5">${ICONS.globe} ${esc(cg.languages.join(', '))}</span>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            ${goldBtn(`${ICONS.send} Send to Family`,'openSendProfileModal()','secondary','sm')}
+          </div>
+        </div>
+
+        <div class="mb-5 flex items-center gap-3">
+          <div class="flex-1 bg-ivory-100 rounded-full h-1.5"><div class="bg-champagne h-1.5 rounded-full" style="width:${cg.profileCompletion}%"></div></div>
+          <span class="text-xs text-obsidian-400">${cg.profileCompletion}% complete</span>
+        </div>
+
+        <div class="mb-6"><h2 class="text-xs font-medium text-obsidian-400 uppercase tracking-wider mb-3">Bio</h2><p class="text-obsidian-600 text-sm leading-relaxed">${esc(cg.bio)}</p></div>
+        <div class="mb-6"><h2 class="text-xs font-medium text-obsidian-400 uppercase tracking-wider mb-3">Skills</h2><div class="flex flex-wrap gap-2">${cg.skills.map(s=>skillChip(s,true)).join('')}</div></div>
+
+        ${cg.videoUrl?`
+        <div class="mb-6">
+          <h2 class="text-xs font-medium text-obsidian-400 uppercase tracking-wider mb-3">Video Introduction</h2>
+          <button onclick="openVideoModal('${esc(cg.videoUrl)}','Introduction — ${esc(cg.firstName)} ${esc(cg.lastName)}')" class="group flex items-center gap-4 p-4 rounded-sm border border-ivory-200 hover:border-champagne/30 hover:bg-champagne/3 transition-all w-full">
+            <div class="w-10 h-10 rounded-full bg-champagne/10 flex items-center justify-center text-champagne">${ICONS.play}</div>
+            <div class="text-left"><p class="text-sm font-medium text-obsidian-800">Watch Introduction</p><p class="text-xs text-obsidian-400">Personal video by ${esc(cg.firstName)}</p></div>
+          </button>
+        </div>`:''}
+
+        ${cg.certifications.length>0?`
+        <div class="mb-6">
+          <h2 class="text-xs font-medium text-obsidian-400 uppercase tracking-wider mb-3">Certifications</h2>
+          <div class="space-y-2">${cg.certifications.map(c=>`<div class="flex items-start gap-3 p-3 bg-ivory-50 rounded-sm"><span class="text-champagne mt-0.5">${ICONS.award}</span><div><p class="text-sm font-medium text-obsidian-800">${esc(c.title)}</p><p class="text-xs text-obsidian-400">${esc(c.issuer)} · ${esc(c.year)}</p></div></div>`).join('')}</div>
+        </div>`:''}
+
+        ${cg.documents.length>0?`
+        <div>
+          <h2 class="text-xs font-medium text-obsidian-400 uppercase tracking-wider mb-3">Documents</h2>
+          <div class="flex flex-wrap gap-2">${cg.documents.map(d=>`<div class="flex items-center gap-2 px-3 py-1.5 bg-ivory-50 border border-ivory-200 rounded-sm"><span class="text-obsidian-400">${ICONS.file}</span><span class="text-xs text-obsidian-600">${esc(d)}</span></div>`).join('')}</div>
+        </div>`:''}
+      </div>
+    </div>
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── ADMIN REQUESTS ── */
+function renderAdminRequests(){
+  const statusFilter = STATE.adminReqFilter||'all';
+  const statuses = ['all','new','reviewing','shortlisted','interview_scheduled','closed'];
+  const filtered = STATE.careRequests.filter(r=>statusFilter==='all'||r.status===statusFilter).sort((a,b)=>b.id.localeCompare(a.id));
+
+  const content = `
+  <div class="p-6 lg:p-8 max-w-5xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <div class="mb-8">
+      <p class="text-xs tracking-widest uppercase text-champagne/70 mb-3">Management</p>
+      <h1 class="font-serif text-3xl text-obsidian-900 mb-2">Family Requests</h1>
+      <p class="text-sm text-obsidian-400">${STATE.careRequests.length} total requests across all families.</p>
+    </div>
+
+    <div class="flex items-center gap-2 mb-6 overflow-x-auto pb-1">
+      <span class="text-obsidian-400 flex-shrink-0">${ICONS.filter}</span>
+      ${statuses.map(s=>`<button onclick="STATE.adminReqFilter='${s}';render()" class="px-3 py-1.5 rounded-sm text-xs font-medium border whitespace-nowrap transition-all ${statusFilter===s?'bg-champagne/15 border-champagne/40 text-gold-700':'border-ivory-200 text-obsidian-400 hover:border-champagne/20'}">${s==='all'?'All':statusLabel(s)} ${s!=='all'?`(${STATE.careRequests.filter(r=>r.status===s).length})`:''}</button>`).join('')}
+    </div>
+
+    ${filtered.length===0?emptyState(ICONS.filter,'No requests found','No requests match the current filter.'):
+    `<div class="space-y-3">
+      ${filtered.map(req=>{
+        const fam = STATE.familyProfiles.find(f=>f.id===req.familyId);
+        return `
+        <button onclick="navigate('admin-match',{requestId:'${req.id}'})" class="group block w-full bg-white rounded-sm border border-ivory-200 p-5 hover:border-champagne/25 hover:shadow-card hover:-translate-y-px transition-all duration-200 text-left">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex-1">
+              <div class="flex flex-wrap items-center gap-3 mb-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium border ${statusBadgeClass(req.status)}">${statusLabel(req.status)}</span>
+                <span class="text-xs text-obsidian-300">Family ${esc(fam?.familyCode||req.familyId.slice(-8).toUpperCase())}</span>
+              </div>
+              <p class="font-medium text-obsidian-800 text-sm mb-1">${esc(req.type)}</p>
+              <div class="flex flex-wrap gap-4 text-xs text-obsidian-400">
+                <span class="flex items-center gap-1.5">${ICONS.users} ${req.children.length} child${req.children.length!==1?'ren':''}</span>
+                <span class="flex items-center gap-1.5">${ICONS.calendar} Start: ${fmt(req.startDate)}</span>
+                <span>Duration: ${esc(req.duration)}</span>
+                <span>${req.liveIn?'Live-in':'Live-out'}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              ${req.status==='new'?`<span class="text-xs font-medium text-champagne border border-champagne/30 px-3 py-1 rounded-sm">Curate Matches →</span>`:''}
+              <span class="text-obsidian-300 group-hover:text-champagne transition-colors flex-shrink-0">${ICONS.chevron_right}</span>
+            </div>
+          </div>
+          ${req.notes?`<p class="mt-3 pt-3 border-t border-ivory-100 text-xs text-obsidian-400 line-clamp-2">${esc(req.notes)}</p>`:''}
+          <div class="mt-3 pt-3 border-t border-ivory-100">
+            <div class="flex flex-wrap items-center gap-1 text-xs text-obsidian-300">
+              <span>Log:</span>
+              ${req.statusLog.map((l,i)=>`${i>0?'<span>→</span>':''}<span class="capitalize">${esc(l.status.replace('_',' '))}</span>`).join('')}
+            </div>
+          </div>
+        </button>`;
+      }).join('')}
+    </div>`}
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── ADMIN MATCHMAKER ── */
+function renderAdminMatch(){
+  const params = STATE.routeParams||{};
+  const requestId = params.requestId||STATE.matchRequestId||'';
+  if(params.requestId) STATE.matchRequestId = params.requestId;
+  const finalRequestId = requestId||STATE.matchRequestId;
+
+  const req = STATE.careRequests.find(r=>r.id===finalRequestId);
+  if(!req) return renderShell(`<div class="p-10 text-center text-obsidian-400">Request not found. <button onclick="navigate('admin-requests')" class="text-champagne hover:underline">Go back</button></div>`);
+
+  const fam = STATE.familyProfiles.find(f=>f.id===req.familyId);
+  const existingSL = getShortlistByRequestId(finalRequestId);
+  if(!STATE.matchSelectedIds||STATE.matchSelectedIds.length===0){
+    if(existingSL) STATE.matchSelectedIds = [...existingSL.caregiverIds];
+  }
+
+  const selected = STATE.matchSelectedIds||[];
+  const isPresented = req.status==='shortlisted'||req.status==='interview_scheduled';
+
+  const search = STATE.matchSearch||'';
+  const filteredCGs = STATE.caregiverProfiles.filter(p=>{
+    const n = `${p.firstName} ${p.lastName}`.toLowerCase();
+    return !search||n.includes(search.toLowerCase())||p.location.toLowerCase().includes(search.toLowerCase());
+  });
+
+  const selectedProfiles = selected.map(id=>getCaregiverById(id)).filter(Boolean);
+
+  const content = `
+  <div class="p-4 lg:p-6 max-w-7xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div>
+        <button onclick="navigate('admin-requests')" class="flex items-center gap-2 text-sm text-obsidian-400 hover:text-obsidian-700 mb-3 transition-colors">${ICONS.chevron_left} Back to Requests</button>
+        <p class="text-xs tracking-widest uppercase text-champagne/70 mb-1">Matchmaking Command Centre</p>
+        <h1 class="font-serif text-2xl lg:text-3xl text-obsidian-900">Curate Matches</h1>
+        <p class="text-sm text-obsidian-400 mt-1">Family ${esc(fam?.familyCode||'—')} · ${esc(req.type)}</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium border ${statusBadgeClass(req.status)}">${statusLabel(req.status)}</span>
+        ${isPresented?`<span class="flex items-center gap-1.5 text-xs text-emerald-600 border border-emerald-200 bg-emerald-50 px-3 py-1.5 rounded-sm">${ICONS.check} Presented to Family</span>`:
+        goldBtn(`${ICONS.send} Present to Family`,'presentToFamily()','primary','md',selected.length!==3?' opacity-50 pointer-events-none':'')}
+      </div>
+    </div>
+
+    ${isPresented?`<div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-sm"><p class="text-sm text-emerald-700"><strong>Shortlist presented.</strong> The family can now view these candidates and schedule interviews.</p></div>`:''}
+
+    <div class="grid grid-cols-1 xl:grid-cols-5 gap-6">
+      <!-- Left: Requirements summary -->
+      <div class="xl:col-span-2">
+        <div class="bg-white rounded-sm border border-ivory-200 p-5 xl:sticky xl:top-24">
+          <h2 class="font-serif text-lg text-obsidian-800 mb-4 pb-3 border-b border-ivory-100">Family Requirements</h2>
+          <div class="space-y-3 mb-5">
+            ${[
+              ['Care Type',req.type],
+              ['Start Date',fmt(req.startDate)],
+              ['Duration',req.duration],
+              ['Children',`${req.children.length} child${req.children.length!==1?'ren':''}`],
+              ['Arrangement',req.liveIn?'Live-in':'Live-out'],
+              ['Travel',req.travelRequired?'Required':'Not required'],
+              ['Languages',(req.languages||[]).length>0?req.languages.join(', '):'No preference'],
+              ["Driver's License",req.driverLicense?'Required':'Not required'],
+              ['Cooking',req.cooking?'Required':'Not required'],
+              ['Budget',req.budget||'Not specified'],
+            ].map(([l,v])=>`<div class="flex items-start justify-between gap-2 py-2 border-b border-ivory-50"><span class="text-xs text-obsidian-400">${esc(l)}</span><span class="text-xs font-medium text-obsidian-800 text-right max-w-32">${esc(String(v))}</span></div>`).join('')}
+          </div>
+          ${req.notes?`<div><p class="text-xs text-obsidian-400 mb-2">Family Notes</p><p class="text-xs text-obsidian-600 leading-relaxed bg-parchment p-3 rounded-sm">${esc(req.notes)}</p></div>`:''}
+
+          <!-- Selection preview -->
+          <div class="mt-5 pt-5 border-t border-ivory-100">
+            <p class="text-xs font-medium text-obsidian-500 uppercase tracking-wider mb-3">Selected (${selected.length}/3)</p>
+            ${selectedProfiles.length===0?`<p class="text-xs text-obsidian-300 italic">No candidates selected yet. Choose exactly 3.</p>`:
+            `<div class="space-y-2">
+              ${selectedProfiles.map((cg,i)=>`
+              <div class="flex items-center gap-3 p-2 bg-parchment rounded-sm border border-champagne/15">
+                <span class="w-5 h-5 rounded-full bg-champagne text-charcoal text-xs font-bold flex items-center justify-center flex-shrink-0">${i+1}</span>
+                <img src="${esc(cg.photo)}" class="w-8 h-8 rounded-full object-cover flex-shrink-0"/>
+                <div class="flex-1 min-w-0"><p class="text-xs font-medium text-obsidian-800 truncate">${esc(cg.firstName)} ${esc(cg.lastName)}</p><p class="text-xs text-obsidian-400 truncate">${esc(cg.location)}</p></div>
+                <button onclick="removeMatchSelection('${cg.id}')" class="text-obsidian-300 hover:text-red-500 transition-colors">${ICONS.x}</button>
+              </div>`).join('')}
+            </div>`}
+            ${selected.length===3&&!isPresented?`<div class="mt-4">${goldBtn(`${ICONS.send} Present to Family`,'presentToFamily()','primary','sm','w-full')}</div>`:''}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Caregiver browser -->
+      <div class="xl:col-span-3">
+        <div class="mb-4 relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-obsidian-300">${ICONS.search}</span>
+          <input type="text" value="${esc(search)}" oninput="STATE.matchSearch=this.value;render()" placeholder="Search caregivers…" class="w-full pl-10 pr-4 py-3 bg-white border border-ivory-200 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-champagne"/>
+        </div>
+        ${selected.length<3&&!isPresented?`<p class="text-xs text-obsidian-400 mb-4">${ICONS.alert} Select exactly 3 caregivers to present to the family.</p>`:''}
+        <div class="space-y-3">
+          ${filteredCGs.map(cg=>{
+            const isSel = selected.includes(cg.id);
+            const isDisabled = !isSel&&selected.length>=3;
+            return `
+            <div class="bg-white rounded-sm border overflow-hidden transition-all duration-200 ${isSel?'border-champagne/40 shadow-gold-sm':isPresented?'border-ivory-200 opacity-60':'border-ivory-200 hover:border-champagne/25'}">
+              <div class="flex items-center gap-4 p-4">
+                <div class="relative flex-shrink-0">
+                  <img src="${esc(cg.photo)}" alt="${esc(cg.firstName)}" class="w-14 h-14 rounded-full object-cover border-2 ${isSel?'border-champagne':'border-ivory-200'}"/>
+                  ${isSel?`<div class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-champagne flex items-center justify-center"><span class="text-charcoal">${ICONS.check}</span></div>`:''}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-2 mb-1">
+                    <h3 class="font-medium text-obsidian-900 text-sm truncate">${esc(cg.firstName)} ${esc(cg.lastName)}</h3>
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                      <div class="w-1.5 h-1.5 rounded-full ${cg.availabilityType==='immediate'?'bg-emerald-400':'bg-amber-400'}"></div>
+                      <span class="text-xs ${cg.availabilityType==='immediate'?'text-emerald-600':'text-amber-600'}">${cg.availabilityType==='immediate'?'Available':'Soon'}</span>
+                    </div>
+                  </div>
+                  <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-obsidian-400 mb-2">
+                    <span class="flex items-center gap-1">${ICONS.map_pin} ${esc(cg.location)}</span>
+                    <span class="flex items-center gap-1">${ICONS.clock} ${cg.yearsOfExperience}y exp</span>
+                    <span class="flex items-center gap-1">${ICONS.globe} ${esc(cg.languages.slice(0,2).join(', '))}</span>
+                  </div>
+                  <div class="flex flex-wrap gap-1">
+                    ${cg.skills.slice(0,3).map(s=>skillChip(s,isSel)).join('')}
+                    ${cg.skills.length>3?`<span class="text-xs text-obsidian-300">+${cg.skills.length-3}</span>`:''}
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2 flex-shrink-0">
+                  ${cg.videoUrl?`<button onclick="openVideoModal('${esc(cg.videoUrl)}','${esc(cg.firstName)} ${esc(cg.lastName)}')" class="flex items-center gap-1 text-xs text-champagne hover:underline">${ICONS.eye} View</button>`:''}
+                  ${!isPresented?`<button onclick="toggleMatchSelection('${cg.id}')" class="${isDisabled?'opacity-40 cursor-not-allowed':''} ${isSel?'text-red-500 hover:text-red-700':'text-champagne hover:text-gold-600'} text-xs font-medium transition-colors">${isSel?'Remove':'+ Select'}</button>`:''}
+                </div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+  return renderShell(content);
+}
+
+/* ── ADMIN MATCHES ── */
+function renderAdminMatches(){
+  const content = `
+  <div class="p-6 lg:p-8 max-w-5xl mx-auto" style="animation:fadeUp .5s cubic-bezier(.16,1,.3,1)">
+    <div class="mb-8">
+      <p class="text-xs tracking-widest uppercase text-champagne/70 mb-3">Records</p>
+      <h1 class="font-serif text-3xl text-obsidian-900 mb-2">Matches &amp; Interviews</h1>
+      <p class="text-sm text-obsidian-400">Complete history of all shortlists, selections, and interviews.</p>
+    </div>
+
+    <div class="mb-8">
+      <h2 class="font-serif text-xl text-obsidian-800 mb-4">Shortlists Presented</h2>
+      ${STATE.shortlists.length===0?emptyState(ICONS.git,'No shortlists yet','Create your first shortlist from a family request.'):
+      `<div class="space-y-3">
+        ${STATE.shortlists.map(sl=>{
+          const req = STATE.careRequests.find(r=>r.id===sl.requestId);
+          const fam = req?STATE.familyProfiles.find(f=>f.id===req.familyId):null;
+          const cgProfiles = sl.caregiverIds.map(id=>getCaregiverById(id)).filter(Boolean);
+          return `
+          <div class="bg-white rounded-sm border border-ivory-200 p-5">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-4">
+              <div>
+                <p class="text-sm font-semibold text-obsidian-800">${esc(req?.type||'—')}</p>
+                <p class="text-xs text-obsidian-400 mt-1">Family ${esc(fam?.familyCode||'—')} · Presented: ${esc(sl.presentedAt)}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium border ${sl.status==='presented'?'bg-champagne/10 text-gold-700 border-champagne/30':sl.status==='selection_made'?'bg-emerald-50 text-emerald-700 border-emerald-200':'bg-gray-50 text-gray-500 border-gray-200'}">${sl.status.replace('_',' ')}</span>
+                ${goldBtn('View Request',"navigate('admin-match',{requestId:'"+sl.requestId+"'})",'ghost','sm')}
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              ${cgProfiles.map(cg=>`
+              <div class="flex items-center gap-2 p-2 bg-parchment rounded-sm border ${sl.selectedId===cg.id?'border-champagne/30':'border-ivory-200'}">
+                <img src="${esc(cg.photo)}" class="w-8 h-8 rounded-full object-cover"/>
+                <div>
+                  <p class="text-xs font-medium text-obsidian-800">${esc(cg.firstName)} ${esc(cg.lastName)}</p>
+                  ${sl.selectedId===cg.id?`<p class="text-xs text-champagne">Selected</p>`:''}
+                </div>
+              </div>`).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`}
+    </div>
+
+    <div>
+      <h2 class="font-serif text-xl text-obsidian-800 mb-4">Interviews Scheduled</h2>
+      ${STATE.interviews.length===0?emptyState(ICONS.calendar,'No interviews yet','Interviews will appear here once families schedule them.'):
+      `<div class="space-y-3">
+        ${STATE.interviews.map(iv=>{
+          const cg = getCaregiverById(iv.caregiverId);
+          const fam = STATE.familyProfiles.find(f=>f.id===iv.familyId);
+          const statusColors = {pending:'bg-amber-50 text-amber-700 border-amber-200',confirmed:'bg-emerald-50 text-emerald-700 border-emerald-200',rescheduled:'bg-blue-50 text-blue-700 border-blue-200',completed:'bg-gray-50 text-gray-500 border-gray-200',cancelled:'bg-red-50 text-red-600 border-red-200'};
+          return `
+          <div class="bg-white rounded-sm border border-ivory-200 p-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex items-center gap-4">
+                <img src="${esc(cg?.photo||'')}" alt="${esc(cg?.firstName||'')}" class="w-12 h-12 rounded-full object-cover border-2 border-ivory-200"/>
+                <div>
+                  <p class="text-sm font-semibold text-obsidian-800">${esc(cg?.firstName||'—')} ${esc(cg?.lastName||'')}</p>
+                  <p class="text-xs text-obsidian-400">Family ${esc(fam?.familyCode||'—')}</p>
+                  <p class="text-xs text-obsidian-500 mt-0.5">${esc(iv.displayTime||fmtDT(iv.scheduledTime))}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium border ${statusColors[iv.status]||''}">${iv.status}</span>
+                ${iv.status==='pending'?goldBtn('Confirm','confirmInterview("'+iv.id+'")', 'secondary','sm'):''}
+              </div>
+            </div>
+            ${iv.message?`<p class="mt-3 pt-3 border-t border-ivory-100 text-xs text-obsidian-400 leading-relaxed">${esc(iv.message)}</p>`:''}
+          </div>`;
+        }).join('')}
+      </div>`}
+    </div>
+  </div>`;
+  return renderShell(content);
+}
+
+// ─── RENDER MAIN ─────────────────────────────────────────────
+function render(){
+  const app = document.getElementById('app');
+  const route = STATE.currentRoute;
+
+  if(!STATE.currentUser || route==='login'){
+    app.innerHTML = renderLogin();
+    return;
+  }
+
+  const routeMap = {
+    'cg-dashboard': renderCGDashboard,
+    'cg-profile': renderCGProfile,
+    'cg-edit': renderCGEdit,
+    'cg-video': renderCGVideo,
+    'fam-dashboard': renderFamDashboard,
+    'fam-new-request': renderFamNewRequest,
+    'fam-shortlist': renderFamShortlist,
+    'fam-schedule': renderFamSchedule,
+    'admin-dashboard': renderAdminDashboard,
+    'admin-caregivers': renderAdminCaregivers,
+    'admin-cg-detail': renderAdminCGDetail,
+    'admin-requests': renderAdminRequests,
+    'admin-match': renderAdminMatch,
+    'admin-matches': renderAdminMatches,
+  };
+
+  const renderer = routeMap[route];
+  if(renderer){
+    app.innerHTML = renderer();
+  } else {
+    app.innerHTML = renderShell(`<div class="p-10 text-center text-obsidian-400">Page not found.</div>`);
+  }
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────
+function openSidebar(){ STATE.sidebarOpen=true; render(); }
+function closeSidebar(){ STATE.sidebarOpen=false; render(); }
+function closeModal(){ STATE.activeModal=null; STATE.modalData={}; render(); }
+
+function openVideoModal(url, name){
+  STATE.activeModal='video';
+  STATE.modalData={url, name};
+  render();
+}
+
+function openRequestMoreModal(){
+  STATE.activeModal='request-more';
+  STATE.modalData={sent:false};
+  render();
+}
+
+function openSendProfileModal(){
+  STATE.sendProfileCaregiverId = STATE.adminCGDetailId||'';
+  STATE.activeModal='send-profile';
+  STATE.modalData={done:false};
+  render();
+}
+
+function submitRequestMore(){
+  STATE.activeModal='request-more';
+  STATE.modalData={sent:true};
+  const fp = getFamilyByUserId(STATE.currentUser.id);
+  const requests = fp?getRequestsByFamilyId(fp.id):[];
+  const req = requests.find(r=>r.status==='shortlisted');
+  if(req){ req.status='reviewing'; req.statusLog.push({status:'reviewing',date:new Date().toLocaleDateString()}); }
+  render();
+}
+
+function doSendProfile(){
+  const sel = document.getElementById('send-fam-select');
+  if(!sel||!sel.value) return;
+  const note = document.getElementById('send-note')?.value||'';
+  STATE.actionLogs.unshift({id:uid(),action:`Sent ${getCaregiverById(STATE.sendProfileCaregiverId)?.firstName||''}'s profile to family`,timestamp:new Date().toISOString(),note});
+  STATE.activeModal='send-profile';
+  STATE.modalData={done:true};
+  render();
+}
+
+function toggleRoleDropdown(){
+  STATE.roleDropdownOpen = !STATE.roleDropdownOpen;
+  render();
+}
+
+function selectRole(role){
+  STATE.loginRole=role;
+  STATE.roleDropdownOpen=false;
+  render();
+}
+
+function toggleSignup(){
+  STATE.loginIsSignup=!STATE.loginIsSignup;
+  STATE.loginError='';
+  render();
+}
+
+function fillDemo(){
+  const role = STATE.loginRole||'family';
+  const demos = {admin:{email:'agripina@lamaisondebebe.com',password:'admin2024'},caregiver:{email:'sophia@example.com',password:'demo'},family:{email:'family@example.com',password:'demo'}};
+  const d = demos[role];
+  document.getElementById('login-email').value = d.email;
+  document.getElementById('login-password').value = d.password;
+}
+
+function doLogin(e){
+  e.preventDefault();
+  const email = document.getElementById('login-email')?.value||'';
+  const password = document.getElementById('login-password')?.value||'';
+  const role = STATE.loginRole||'family';
+  const isSignup = STATE.loginIsSignup||false;
+
+  if(isSignup){
+    const name = document.getElementById('login-name')?.value||'';
+    if(!name){ STATE.loginError='Please enter your full name.'; render(); return; }
+    const exists = STATE.users.find(u=>u.email===email);
+    if(exists){ STATE.loginError='An account with this email already exists.'; render(); return; }
+    const newUser={id:uid(),email,password,role,name,profileId:'profile-'+uid()};
+    STATE.users.push(newUser);
+    STATE.currentUser=newUser;
+  } else {
+    const user = STATE.users.find(u=>u.email===email&&u.password===password&&u.role===role);
+    if(!user){ STATE.loginError='Invalid credentials. Please check your email and password.'; render(); return; }
+    STATE.currentUser=user;
+  }
+
+  STATE.loginError='';
+  STATE.roleDropdownOpen=false;
+  const redirects={caregiver:'cg-dashboard',family:'fam-dashboard',admin:'admin-dashboard'};
+  navigate(redirects[STATE.currentUser.role]);
+}
+
+function doLogout(){
+  STATE.currentUser=null;
+  STATE.profileEditForm=null;
+  STATE.videoEditUrl=undefined;
+  STATE.videoSaved=false;
+  STATE.profileSaved=false;
+  STATE.newRequestStep=1;
+  STATE.newRequestSubmitted=false;
+  STATE.newRequestForm={type:'',children:[{age:'',allergies:'',medicalNotes:''}],startDate:'',duration:'',liveIn:false,travelRequired:false,languages:[],driverLicense:false,cooking:false,budget:'',notes:''};
+  STATE.scheduleDate=''; STATE.scheduleTime=''; STATE.scheduleMessage=''; STATE.scheduleSubmitted=false;
+  STATE.matchSelectedIds=[]; STATE.matchRequestId=''; STATE.matchPresented=false;
+  navigate('login');
+}
+
+/* Caregiver edit actions */
+function setEditTab(tab){ STATE.caregiverEditTab=tab; render(); }
+function updateEditField(field, value){ if(STATE.profileEditForm) STATE.profileEditForm[field]=value; render(); }
+function clearEditField(field){ if(STATE.profileEditForm) STATE.profileEditForm[field]=''; render(); }
+function toggleEditSkill(skill){
+  if(!STATE.profileEditForm) return;
+  const skills = STATE.profileEditForm.skills||[];
+  STATE.profileEditForm.skills = skills.includes(skill)?skills.filter(s=>s!==skill):[...skills,skill];
+  render();
+}
+function toggleEditLang(lang){
+  if(!STATE.profileEditForm) return;
+  const langs = STATE.profileEditForm.languages||[];
+  STATE.profileEditForm.languages = langs.includes(lang)?langs.filter(l=>l!==lang):[...langs,lang];
+  render();
+}
+function addCert(){
+  if(!STATE.profileEditForm) return;
+  STATE.profileEditForm.certifications.push({id:uid(),title:'',issuer:'',year:''});
+  render();
+}
+function removeCert(i){
+  if(!STATE.profileEditForm) return;
+  STATE.profileEditForm.certifications.splice(i,1);
+  render();
+}
+function updateCert(i, field, value){
+  if(!STATE.profileEditForm) return;
+  STATE.profileEditForm.certifications[i][field]=value;
+}
+function addMockDoc(){
+  if(!STATE.profileEditForm) return;
+  const names = ['passport_copy.pdf','background_check.pdf','cpr_cert.pdf','reference_letter.pdf'];
+  STATE.profileEditForm.documents.push(names[Math.floor(Math.random()*names.length)]);
+  render();
+}
+function removeDoc(i){
+  if(!STATE.profileEditForm) return;
+  STATE.profileEditForm.documents.splice(i,1);
+  render();
+}
+function handlePhotoUpload(input){
+  const file = input.files[0];
+  if(!file||!STATE.profileEditForm) return;
+  const reader = new FileReader();
+  reader.onload = e => { STATE.profileEditForm.photo=e.target.result; render(); };
+  reader.readAsDataURL(file);
+}
+function saveProfile(){
+  if(!STATE.profileEditForm) return;
+  const f = STATE.profileEditForm;
+  let score = 0;
+  if(f.photo) score+=20;
+  if(f.bio&&f.bio.length>100) score+=20;
+  if((f.skills||[]).length>2) score+=15;
+  if((f.certifications||[]).length>0) score+=15;
+  if(f.videoUrl) score+=15;
+  if((f.documents||[]).length>0) score+=10;
+  if((f.languages||[]).length>0) score+=5;
+  f.profileCompletion = Math.min(score,100);
+
+  const existing = STATE.caregiverProfiles.findIndex(p=>p.userId===STATE.currentUser.id);
+  if(existing>=0){
+    STATE.caregiverProfiles[existing]={...STATE.caregiverProfiles[existing],...f};
+  } else {
+    STATE.caregiverProfiles.push({...f,id:uid(),userId:STATE.currentUser.id});
+  }
+  STATE.profileSaved=true;
+  render();
+  setTimeout(()=>{ STATE.profileSaved=false; render(); },3000);
+}
+
+/* Video */
+function saveVideo(){
+  const url = STATE.videoEditUrl||document.getElementById('video-url-inp')?.value||'';
+  if(!url) return;
+  const p = getProfileByUserId(STATE.currentUser.id);
+  if(p){ p.videoUrl=url; p.videoType='youtube'; }
+  STATE.videoSaved=true;
+  STATE.videoEditUrl=url;
+  render();
+  setTimeout(()=>{ STATE.videoSaved=false; render(); },3000);
+}
+
+/* New Request wizard */
+function nextStep(){ if(STATE.newRequestStep<5) STATE.newRequestStep++; render(); }
+function prevStep(){ if(STATE.newRequestStep>1) STATE.newRequestStep--; render(); }
+function addChild(){ STATE.newRequestForm.children.push({age:'',allergies:'',medicalNotes:''}); render(); }
+function removeChild(i){ STATE.newRequestForm.children.splice(i,1); render(); }
+function toggleReqLang(lang){
+  const langs = STATE.newRequestForm.languages||[];
+  STATE.newRequestForm.languages = langs.includes(lang)?langs.filter(l=>l!==lang):[...langs,lang];
+  render();
+}
+function submitNewRequest(){
+  const fp = getFamilyByUserId(STATE.currentUser.id);
+  if(!fp) return;
+  const f = STATE.newRequestForm;
+  const newReq={
+    id:'req-'+uid(),familyId:fp.id,type:f.type,children:f.children,
+    startDate:f.startDate,duration:f.duration,liveIn:f.liveIn,travelRequired:f.travelRequired,
+    languages:f.languages,driverLicense:f.driverLicense,cooking:f.cooking,
+    budget:f.budget,notes:f.notes,status:'new',
+    statusLog:[{status:'new',date:new Date().toLocaleDateString()}],
+  };
+  STATE.careRequests.push(newReq);
+  STATE.newRequestSubmitted=true;
+  STATE.newRequestForm={type:'',children:[{age:'',allergies:'',medicalNotes:''}],startDate:'',duration:'',liveIn:false,travelRequired:false,languages:[],driverLicense:false,cooking:false,budget:'',notes:''};
+  STATE.newRequestStep=1;
+  render();
+}
+
+/* Schedule interview */
+function resetSchedule(){ STATE.scheduleSubmitted=false; STATE.scheduleDate=''; STATE.scheduleTime=''; STATE.scheduleMessage=''; render(); }
+function submitSchedule(){
+  const caregiverId = STATE.scheduleTargetCaregiverId;
+  const requestId = STATE.scheduleTargetRequestId;
+  if(!STATE.scheduleDate||!STATE.scheduleTime||!caregiverId) return;
+
+  const fp = getFamilyByUserId(STATE.currentUser.id);
+  const scheduledTime = new Date(`${STATE.scheduleDate}T${STATE.scheduleTime}:00`).toISOString();
+  const iv={id:'int-'+uid(),requestId,caregiverId,familyId:fp?.id||'',scheduledTime,displayTime:`${fmt(STATE.scheduleDate)} at ${STATE.scheduleTime}`,message:STATE.scheduleMessage,status:'pending',createdAt:new Date().toISOString()};
+  STATE.interviews.push(iv);
+
+  const req = STATE.careRequests.find(r=>r.id===requestId);
+  if(req){ req.status='interview_scheduled'; req.statusLog.push({status:'interview_scheduled',date:new Date().toLocaleDateString()}); }
+
+  const sl = STATE.shortlists.find(s=>s.requestId===requestId);
+  if(sl){ sl.selectedId=caregiverId; sl.status='selection_made'; }
+
+  STATE.actionLogs.unshift({id:uid(),action:`Interview scheduled with ${getCaregiverById(caregiverId)?.firstName||'caregiver'}`,timestamp:new Date().toISOString()});
+  STATE.scheduleSubmitted=true;
+  render();
+}
+
+/* Admin match */
+function toggleMatchSelection(id){
+  const sel = STATE.matchSelectedIds||[];
+  if(sel.includes(id)){ STATE.matchSelectedIds=sel.filter(s=>s!==id); }
+  else if(sel.length<3){ STATE.matchSelectedIds=[...sel,id]; }
+  render();
+}
+function removeMatchSelection(id){
+  STATE.matchSelectedIds=(STATE.matchSelectedIds||[]).filter(s=>s!==id);
+  render();
+}
+function presentToFamily(){
+  const sel = STATE.matchSelectedIds||[];
+  if(sel.length!==3) return;
+  const requestId = STATE.matchRequestId;
+  const req = STATE.careRequests.find(r=>r.id===requestId);
+  if(!req) return;
+
+  const existing = STATE.shortlists.find(s=>s.requestId===requestId);
+  if(existing){ existing.caregiverIds=sel; existing.presentedAt=new Date().toLocaleDateString(); existing.status='presented'; }
+  else { STATE.shortlists.push({id:'sl-'+uid(),requestId,caregiverIds:sel,presentedAt:new Date().toLocaleDateString(),status:'presented'}); }
+
+  req.status='shortlisted';
+  req.statusLog.push({status:'shortlisted',date:new Date().toLocaleDateString(),note:'3 candidates presented to family'});
+  STATE.actionLogs.unshift({id:uid(),action:`Presented shortlist of 3 candidates`,timestamp:new Date().toISOString()});
+  render();
+}
+function confirmInterview(id){
+  const iv = STATE.interviews.find(i=>i.id===id);
+  if(iv){ iv.status='confirmed'; STATE.actionLogs.unshift({id:uid(),action:`Confirmed interview`,timestamp:new Date().toISOString()}); render(); }
+}
+function toggleAdminSkillFilter(skill){
+  const filters = STATE.adminSkillFilter||[];
+  STATE.adminSkillFilter = filters.includes(skill)?filters.filter(s=>s!==skill):[...filters,skill];
+  render();
+}
+function clearAdminFilters(){ STATE.adminCGSearch=''; STATE.adminSkillFilter=[]; STATE.adminAvailFilter='all'; render(); }
+
+// Init
+render();
+</script>
+</body>
+</html>
